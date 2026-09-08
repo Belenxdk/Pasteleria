@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle del Producto - Pastelería Mil Sabores</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Pacifico&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <a href="index.html">Pastelería <span>Mil Sabores</span></a>
+        </div>
+        <nav class="nav">
+            <ul class="nav-list">
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="productos.html">Productos</a></li>
+                <li><a href="nosotros.html">Nosotros</a></li>
+                <li><a href="blogs.html">Blog</a></li>
+                <li><a href="contacto.html">Contacto</a></li>
+            </ul>
+        </nav>
+        <div class="header-acciones">
+            <a href="login.html" class="btn-login">Iniciar sesión</a>
+            <a href="carrito.html" class="carrito">🛒 <span id="carrito-contador">0</span></a>
+        </div>
+    </header>
+    <section class="detalle-producto">
+    <div class="detalle-imagen">
+        <img id="imagen-producto" src="img/productos/tortaChocolate.jpg" alt="Torta de chocolate">
+    </div>
+
+    <div class="detalle-info">
+        <p id="categoria-producto" class="categoria">Tortas</p>
+        <h1 id="nombre-producto">Torta de Chocolate</h1>
+        <p id="precio-producto" class="precio-grande">$25.000</p>
+        <p id="descripcion-producto" class="descripcion">
+            Deliciosa torta de chocolate artesanal, elaborada con cacao premium y un suave relleno de manjar.
+        </p>
+
+        <div class="selector-cantidad">
+            <label for="cantidad">Cantidad:</label>
+            <button type="button" class="btn-cantidad" id="restar">-</button>
+            <input type="number" id="cantidad" value="1" min="1" max="10" readonly>
+            <button type="button" class="btn-cantidad" id="sumar">+</button>
+        </div>
+
+        <button type="button" class="btn-primario" id="boton-anadir-carrito">
+            Agregar al carrito
+        </button>
+    </div>
+</section>
+
+
+<script src="js/carrito.js"></script>
+<script src="js/detalle-producto.js"></script>
+
+
+    <footer class="footer">
+        <div class="footer-col">
+            <h3>Pastelería Mil Sabores</h3>
+            <p>Desde 1950 endulzando tus momentos especiales.</p>
+        </div>
+        <div class="footer-col">
+            <h4>Enlaces</h4>
+            <ul>
+                <li><a href="productos.html">Productos</a></li>
+                <li><a href="nosotros.html">Nosotros</a></li>
+                <li><a href="contacto.html">Contacto</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h4>Contacto</h4>
+            <p>Av. Siempre Viva 123, Santiago</p>
+            <p>contacto@milsabores.cl</p>
+        </div>
+    </footer>
+</body>
+</html>

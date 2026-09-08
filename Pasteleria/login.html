@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión - Pastelería Mil Sabores</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Pacifico&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <a href="index.html">Pastelería <span>Mil Sabores</span></a>
+        </div>
+        <nav class="nav">
+            <ul class="nav-list">
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="productos.html">Productos</a></li>
+                <li><a href="nosotros.html">Nosotros</a></li>
+                <li><a href="blogs.html">Blog</a></li>
+                <li><a href="contacto.html">Contacto</a></li>
+            </ul>
+        </nav>
+        <div class="header-acciones">
+            <a href="login.html" class="btn-login">Iniciar sesión</a>
+            <a href="carrito.html" class="carrito">🛒 <span id="carrito-contador">0</span></a>
+        </div>
+    </header>
+
+    <section class="pagina-auth">
+        <div class="auth-card">
+            <h1>Iniciar Sesión</h1>
+            <form id="form-login" novalidate>
+                <div class="campo">
+                    <label for="email">Correo electrónico</label>
+                    <input type="email" id="email" name="email" placeholder="ejemplo@duoc.cl">
+                    <span class="error" id="error-email"></span>
+                </div>
+                <div class="campo">
+                    <label for="password">Contraseña</label>
+                    <input type="password" id="password" name="password" placeholder="Entre 4 y 10 caracteres">
+                    <span class="error" id="error-password"></span>
+                </div>
+                <button type="submit" class="btn-primario">Ingresar</button>
+            </form>
+            <p class="auth-link">¿No tienes cuenta? <a href="registro.html">Regístrate aquí</a></p>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-col">
+            <h3>Pastelería Mil Sabores</h3>
+            <p>Desde 1950 endulzando tus momentos especiales.</p>
+        </div>
+        <div class="footer-col">
+            <h4>Enlaces</h4>
+            <ul>
+                <li><a href="productos.html">Productos</a></li>
+                <li><a href="nosotros.html">Nosotros</a></li>
+                <li><a href="contacto.html">Contacto</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h4>Contacto</h4>
+            <p>Av. Siempre Viva 123, Santiago</p>
+            <p>contacto@milsabores.cl</p>
+        </div>
+    </footer>
+
+    <script src="js/validaciones.js"></script>
+</body>
+</html>

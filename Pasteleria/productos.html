@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Productos - Pastelería Mil Sabores</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Pacifico&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <a href="index.html">Pastelería <span>Mil Sabores</span></a>
+        </div>
+        <nav class="nav">
+            <ul class="nav-list">
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="productos.html">Productos</a></li>
+                <li><a href="nosotros.html">Nosotros</a></li>
+                <li><a href="blogs.html">Blog</a></li>
+                <li><a href="contacto.html">Contacto</a></li>
+            </ul>
+        </nav>
+        <div class="header-acciones">
+            <a href="login.html" class="btn-login">Iniciar sesión</a>
+            <a href="carrito.html" class="carrito">🛒<span id="carrito-contador">0</span></a>
+        </div>
+    </header>
+    <section class="catalogo">
+    <h1>Nuestros Productos</h1>
+    <div class="filtros">
+        <button class="filtro-btn activo" data-categoria="todos" aria-pressed="true">Todos</button>
+        <button class="filtro-btn" data-categoria="tortas" aria-pressed="false">Tortas</button>
+        <button class="filtro-btn" data-categoria="individual" aria-pressed="false">Pastelería Individual</button>
+        <button class="filtro-btn" data-categoria="sin-azucar" aria-pressed="false">Sin Azúcar</button>
+    </div>
+    <div class="grid-productos grid-catalogo">
+        <div class="producto-card" data-categoria="tortas">
+            <img src="img/productos/tortaChocolate.jpg" alt="Torta de chocolate">
+            <h3>Torta de Chocolate</h3>
+            <p class="precio">$25.000</p>
+            <a href="producto-detalle.html?id=torta-chocolate" class="btn-secundario">Ver más</a>
+        </div>
+        <div class="producto-card" data-categoria="tortas">
+            <img src="img/productos/ChescakedeFrutosRojos.jpg" alt="Cheesecake de frutos rojos">
+            <h3>Cheesecake Frutos Rojos</h3>
+            <p class="precio">$22.000</p>
+            <a href="producto-detalle.html?id=cheesecake-frutos-rojos" class="btn-secundario">Ver más</a>
+        </div>
+        <div class="producto-card" data-categoria="tortas">
+            <img src="img/productos/tortaCumpleanos.jpg" alt="Torta especial de cumpleaños">
+            <h3>Torta Especial Cumpleaños</h3>
+            <p class="precio">$30.000</p>
+            <a href="producto-detalle.html?id=torta-cumpleanos" class="btn-secundario">Ver más</a>
+        </div>
+
+        <div class="producto-card" data-categoria="individual">
+            <img src="img/productos/macarron.jpg" alt="Caja de macarons">
+            <h3>Caja de Macarons</h3>
+            <p class="precio">$12.000</p>
+            <a href="producto-detalle.html?id=macarons" class="btn-secundario">Ver más</a>
+        </div>
+        <div class="producto-card" data-categoria="individual">
+            <img src="img/productos/cupcakes.jpg" alt="Cupcakes surtidos">
+            <h3>Cupcakes Surtidos (6 un.)</h3>
+            <p class="precio">$9.000</p>
+            <a href="producto-detalle.html?id=cupcakes" class="btn-secundario">Ver más</a>
+        </div>
+        <div class="producto-card" data-categoria="individual">
+            <img src="img/productos/brawnie.jpg" alt="Brownies artesanales">
+            <h3>Brownies Artesanales (4 un.)</h3>
+            <p class="precio">$7.500</p>
+            <a href="producto-detalle.html?id=brownies" class="btn-secundario">Ver más</a>
+        </div>
+        <div class="producto-card" data-categoria="sin-azucar">
+            <img src="img/productos/tortasinAzucar.jpg" alt="Torta sin azúcar de naranja">
+            <h3>Torta Sin Azúcar de Naranja</h3>
+            <p class="precio">$27.000</p>
+            <a href="producto-detalle.html?id=torta-sin-azucar" class="btn-secundario">Ver más</a>
+        </div>
+
+        <div class="producto-card" data-categoria="sin-azucar">
+            <img src="img/productos/Chescakes.jpg" alt="Cheesecake sin azúcar">
+            <h3>Cheesecake Sin Azúcar</h3>
+            <p class="precio">$24.000</p>
+            <a href="producto-detalle.html?id=cheesecake-sin-azucar" class="btn-secundario">Ver más</a>
+        </div>
+
+        <div class="producto-card" data-categoria="sin-azucar">
+            <img src="img/productos/galletas.jpg" alt="Galletas sin azúcar">
+            <h3>Galletas Sin Azúcar (8 un.)</h3>
+            <p class="precio">$6.000</p>
+            <a href="producto-detalle.html?id=galletas-sin-azucar" class="btn-secundario">Ver más</a>
+        </div>
+    </div>
+</section>
+<script src="js/filtros-productos.js"></script>
+<footer class="footer">
+        <div class="footer-col">
+            <h3>Pastelería Mil Sabores</h3>
+            <p>Desde 1950 endulzamos tus momentos especiales.</p>
+        </div>
+        <div class="footer-col">
+            <h4>Enlaces</h4>
+            <ul>
+                <li><a href="productos.html">Productos</a></li>
+                <li><a href="nosotros.html">Nosotros</a></li>
+                <li><a href="contacto.html">Contacto</a></li>
+            </ul>
+        </div>
+
+        <div class="footer-col">
+            <h4>Contacto</h4>
+            <p>Av. Siempre Viva 123, Santiago</p>
+            <p>Contacto@milsabores.cl</p>
+            
+        </div>
+    </footer>
+    
+</body>
+</html>

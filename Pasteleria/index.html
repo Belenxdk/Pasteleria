@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pastelería Mil Sabores</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Pacifico&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <a href="index.html">Pastelería <span>Mil Sabores</span></a>
+        </div>
+        <nav class="nav">
+            <ul class="nav-list">
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="productos.html">Productos</a></li>
+                <li><a href="nosotros.html">Nosotros</a></li>
+                <li><a href="blogs.html">Blog</a></li>
+                <li><a href="contacto.html">Contacto</a></li>
+            </ul>
+        </nav>
+        <div class="header-acciones">
+            <a href="login.html" class="btn-login">Iniciar sesión</a>
+            <a href="carrito.html" class="carrito">🛒 <span id="carrito-contador">0</span></a>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="hero-contenido">
+            <h1>Endulzamos tus momentos especiales</h1>
+            <p>Repostería artesanal hecha con amor desde 1950. Tortas, pasteles y postres para cada ocasión.</p>
+            <a href="productos.html" class="btn-primario">Ver productos</a>
+        </div>
+    </section>
+
+    <section class="productos-destacados">
+        <h2>Nuestros Productos Favoritos</h2>
+        <div class="grid-productos">
+            <div id="producto-torta-chocolate" class="producto-card producto-torta" data-producto-id="torta-chocolate">
+                <img src="img/productos/tortaChocolate.jpg" alt="Torta de chocolate">
+                <h3>Torta de Chocolate</h3>
+                <p class="precio">$25.000</p>
+                <a href="producto-detalle.html?id=torta-chocolate" class="btn-secundario">Ver más</a>
+            </div>
+            <div id="producto-cheesecake-frutos-rojos" class="producto-card producto-torta" data-producto-id="cheesecake-frutos-rojos">
+                <img src="img/productos/ChescakedeFrutosRojos.jpg" alt="Cheesecake de frutos rojos">
+                <h3>Cheesecake Frutos Rojos</h3>
+                <p class="precio">$22.000</p>
+                <a href="producto-detalle.html?id=cheesecake-frutos-rojos" class="btn-secundario">Ver más</a>
+            </div>
+            <div id="producto-macarons" class="producto-card producto-individual" data-producto-id="macarons">
+                <img src="img/productos/macarron.jpg" alt="Caja de macarons">
+                <h3>Caja de Macarons</h3>
+                <p class="precio">$12.000</p>
+                <a href="producto-detalle.html?id=macarons" class="btn-secundario">Ver más</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="nosotros-resumen">
+        <div class="nosotros-imagen">
+            <img src="img/tienda.jpg" alt="Interior de Pastelería Mil Sabores">
+        </div>
+        <div class="nosotros-texto">
+            <h2>Nuestra historia</h2>
+            <p>Desde 1950, Pastelería Mil Sabores endulza los momentos más importantes de nuestros clientes. Comenzamos como un pequeño local familiar y hoy seguimos fieles a las mismas recetas artesanales, hechas con ingredientes de calidad y mucho cariño.</p>
+            <a href="nosotros.html" class="btn-secundario">Conócenos más</a>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-col">
+            <h3>Pastelería Mil Sabores</h3>
+            <p>Desde 1950 endulzando tus momentos especiales.</p>
+        </div>
+
+        <div class="footer-col">
+            <h4>Enlaces</h4>
+            <ul>
+                <li><a href="productos.html">Productos</a></li>
+                <li><a href="nosotros.html">Nosotros</a></li>
+                <li><a href="contacto.html">Contacto</a></li>
+            </ul>
+        </div>
+
+        <div class="footer-col">
+            <h4>Contacto</h4>
+            <p>Av. Siempre Viva 123, Santiago</p>
+            <p>contacto@milsabores.cl</p>
+        </div>
+    </footer>
+
+</body>
+</html>
