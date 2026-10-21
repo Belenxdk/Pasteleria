@@ -1,0 +1,25 @@
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background-color: #fff5e1;
+  color: #5d4037;
+}
+
+.contenedor {
+  max-width: 720px;
+  margin: 4rem auto;
+  padding: 2rem;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgb(0 0 0 / 0.08);
+  text-align: center;
+}
+
+h1 {
+  color: #8b4513;
+}
+
+.pie {
+  color: #6b7280;
+  font-size: 0.9rem;
+}

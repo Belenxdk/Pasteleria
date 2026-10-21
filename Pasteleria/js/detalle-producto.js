@@ -61,6 +61,14 @@ const productos = {
 		descripcion: 'Ocho galletas horneadas sin azúcar, perfectas para acompañar tu café o té.',
 		precio: '$6.000',
 		imagen: 'img/productos/galletas.jpg'
+	},
+	'brazo-de-reina':{
+		categoria: 'torta',
+		nombre: 'Brazo de reina(10 un)',
+		descripcion: 'Un clásico a la hora de darse un gusto dulce',
+		precio: '$10.000',
+		imagen: 'https://www.tipicochileno.cl/wp-content/uploads/2021/05/brazo-de-reina-1080-1080.jpg'
+
 	}
 
 };
