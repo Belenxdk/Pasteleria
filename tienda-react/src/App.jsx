@@ -1,23 +1,20 @@
+import { Container} from 'react-bootstrap'
 import Encabezado from './components/Encabezado.jsx'
+import Portada from './components/Portada.jsx'
+import PiePagina from './components/PiePagina.jsx'
 
 function App() {
-  const tienda = 'Pastelería Mil Sabores'
-  const equipo = 'Belén Conalef y Eduardo'
-  const anio = 2026
-
   return (
     <>
-      <Encabezado />
-      <main className="contenedor">
-        <h1>🎂 {tienda}</h1>
-        <p>
-          Mi primer proyecto con <strong>React + Vite</strong>.
-        </p>
-        <p className="pie">
-          {equipo} · DSY1104 · {anio}
-        </p>
-      </main>
+      <Encabezado/>
+      <Portada/>
+      <Container as= 'main' id='productos'>
+        <h2 className='mb-3'>Nuestros Productos</h2>
+        <p className='text-muted'> aqui ira el catalogo</p>
+      </Container>
+    
     </>
+
   )
 }
 
