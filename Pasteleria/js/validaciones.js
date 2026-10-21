@@ -86,6 +86,7 @@ if (formRegistro) {
     const email = document.getElementById('email').value.trim();
     const direccion = document.getElementById('direccion').value.trim();
     const password = document.getElementById('password').value;
+    const asunto = document.getElementById('asunto').value.trim();
 
     if (run === '') {
       mostrarError('run', 'error-run', 'El RUN es obligatorio.');
@@ -136,6 +137,16 @@ if (formRegistro) {
       mostrarError('email', 'error-email', '');
     }
 
+    if (asunto === ''){
+      mostrarError('asunto', 'error-asunto', 'El asunto no puede estar vacio.');
+      esValido = false;
+    }else if (asunto.length > 100){
+       mostrarError('asunto', 'error-asunto', 'Maximo son 100 caracteres');
+      esValido = false;
+    } else{
+      mostrarError('asunto', 'error-asunto', '');
+    }
+
   
     if (direccion === '') {
       mostrarError('direccion', 'error-direccion', 'La dirección es obligatoria.');
@@ -143,8 +154,6 @@ if (formRegistro) {
     } else if (direccion.length > 300) {
       mostrarError('direccion', 'error-direccion', 'Máximo 300 caracteres.');
       esValido = false;
-    } else {
-      mostrarError('direccion', 'error-direccion', '');
     }
 
     if (password === '') {
