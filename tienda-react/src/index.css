@@ -23,3 +23,8 @@ h1 {
   color: #6b7280;
   font-size: 0.9rem;
 }
+
+.portada{
+  background: linear-gradient(135deg, #8b4513, #d2d2d2);
+  color: #fff;
+}
