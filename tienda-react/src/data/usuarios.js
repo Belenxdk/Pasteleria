@@ -114,10 +114,36 @@ export function registrarUsuario(datos) {
   guardarUsuarios(usuarios);
 
   // Devuelve los datos públicos, sin la contraseña.
+   // Devuelve los datos públicos, sin la contraseña.
   return {
     id: nuevoUsuario.id,
     nombre: nuevoUsuario.nombre,
     email: nuevoUsuario.email,
     rol: nuevoUsuario.rol,
   };
+} // Aquí termina registrarUsuario.
+
+export function inicializarAdminDemo() {
+  const usuarios = listarUsuarios();
+  const emailAdmin = "admin@milsabores.test";
+
+  const existe = usuarios.some(
+    (usuario) => usuario.email === emailAdmin
+  );
+
+  if (existe) return;
+
+  const administrador = {
+    id: "admin-demo",
+    run: "",
+    nombre: "Administrador",
+    apellidos: "Demo",
+    email: emailAdmin,
+    direccion: "Cuenta de demostración",
+    password: "Admin123",
+    rol: "admin",
+  };
+
+  usuarios.push(administrador);
+  guardarUsuarios(usuarios);
 }
