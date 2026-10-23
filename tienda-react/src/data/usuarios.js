@@ -1,6 +1,5 @@
 const CLAVE = "milsabores_usuarios";
 
-// Obtiene los usuarios guardados.
 export function listarUsuarios() {
   const guardados = localStorage.getItem(CLAVE);
   return guardados === null ? [] : JSON.parse(guardados);
@@ -10,11 +9,9 @@ function guardarUsuarios(usuarios) {
   localStorage.setItem(CLAVE, JSON.stringify(usuarios));
 }
 
-// Comprueba el dígito verificador del RUN.
 export function validarRun(valor) {
   const run = valor.trim().toUpperCase();
 
-  // Entre 7 y 8 dígitos, seguidos del dígito verificador.
   if (!/^\d{7,8}[\dK]$/.test(run)) return false;
 
   const cuerpo = run.slice(0, -1);
@@ -35,7 +32,6 @@ export function validarRun(valor) {
   return digito === esperado;
 }
 
-// Devuelve los errores de cada campo del registro.
 export function validarRegistro(datos) {
   const errores = {};
 
@@ -79,7 +75,6 @@ export function validarRegistro(datos) {
   return errores;
 }
 
-// Registra una cuenta de cliente.
 export function registrarUsuario(datos) {
   const errores = validarRegistro(datos);
 
@@ -113,15 +108,13 @@ export function registrarUsuario(datos) {
   usuarios.push(nuevoUsuario);
   guardarUsuarios(usuarios);
 
-  // Devuelve los datos públicos, sin la contraseña.
-   // Devuelve los datos públicos, sin la contraseña.
   return {
     id: nuevoUsuario.id,
     nombre: nuevoUsuario.nombre,
     email: nuevoUsuario.email,
     rol: nuevoUsuario.rol,
   };
-} // Aquí termina registrarUsuario.
+}
 
 export function inicializarAdminDemo() {
   const usuarios = listarUsuarios();
@@ -146,4 +139,86 @@ export function inicializarAdminDemo() {
 
   usuarios.push(administrador);
   guardarUsuarios(usuarios);
+}
+export function actualizarUsuario(id, datos) {
+  const usuarios = listarUsuarios();
+  const indice = usuarios.findIndex((usuario) => usuario.id === id);
+
+  if (indice === -1) {
+    throw new Error("El usuario no existe.");
+  }
+
+  const usuarioActual = usuarios[indice];
+
+  if (usuarioActual.rol === "admin") {
+    throw new Error("La cuenta administradora de demo no se puede editar.");
+  }
+
+  const password =
+    datos.password === "" || datos.password === undefined
+      ? usuarioActual.password
+      : datos.password;
+
+  const actualizado = {
+    ...usuarioActual,
+    run: (datos.run || "").trim().toUpperCase(),
+    nombre: (datos.nombre || "").trim(),
+    apellidos: (datos.apellidos || "").trim(),
+    email: (datos.email || "").trim().toLowerCase(),
+    direccion: (datos.direccion || "").trim(),
+    password,
+  };
+
+  const errores = validarRegistro({
+    ...actualizado,
+    confirmarPassword: password,
+  });
+
+  if (Object.keys(errores).length > 0) {
+    throw new Error(Object.values(errores)[0]);
+  }
+
+  const correoRepetido = usuarios.some(
+    (usuario) =>
+      usuario.id !== id && usuario.email === actualizado.email
+  );
+
+  if (correoRepetido) {
+    throw new Error("Ese correo ya pertenece a otro usuario.");
+  }
+
+  const runRepetido = usuarios.some(
+    (usuario) =>
+      usuario.id !== id && usuario.run === actualizado.run
+  );
+
+  if (runRepetido) {
+    throw new Error("Ese RUN ya pertenece a otro usuario.");
+  }
+
+  usuarios[indice] = actualizado;
+  guardarUsuarios(usuarios);
+
+  return {
+    id: actualizado.id,
+    nombre: actualizado.nombre,
+    email: actualizado.email,
+    rol: actualizado.rol,
+  };
+}
+
+export function eliminarUsuario(id) {
+  const usuarios = listarUsuarios();
+  const usuario = usuarios.find((usuario) => usuario.id === id);
+
+  if (!usuario) {
+    throw new Error("El usuario no existe.");
+  }
+
+  if (usuario.rol === "admin") {
+    throw new Error("La cuenta administradora de demo no se puede eliminar.");
+  }
+
+  const restantes = usuarios.filter((usuario) => usuario.id !== id);
+  guardarUsuarios(restantes);
 }

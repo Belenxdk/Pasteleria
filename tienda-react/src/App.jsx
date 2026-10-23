@@ -11,6 +11,8 @@ import RutaAdmin from "./pages/admin/RutaAdmin.jsx";
 import Registro from "./pages/auth/Registro.jsx";
 import Login from "./pages/auth/Login.jsx";
 import Dashboard from "./pages/admin/Dashboard.jsx";
+import UsuariosAdmin from "./pages/admin/UsuariosAdmin.jsx";
+import OrdenesAdmin from "./pages/admin/OrdenesAdmin.jsx";
 
 function App() {
   return (
@@ -85,6 +87,23 @@ function App() {
           }
         />
 
+        <Route
+          path="/admin/usuarios"
+          element={
+            <RutaAdmin>
+              <UsuariosAdmin />
+            </RutaAdmin>
+          }
+        />
+
+        <Route
+          path="/admin/ordenes"
+          element={
+            <RutaAdmin>
+              <OrdenesAdmin />
+            </RutaAdmin>
+          }
+        />
 
         <Route
           path="*"

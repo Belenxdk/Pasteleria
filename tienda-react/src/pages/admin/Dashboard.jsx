@@ -52,6 +52,19 @@ function Dashboard() {
       <Link to="/admin/productos" className="btn btn-success">
         Administrar productos
       </Link>
+
+      <Link
+        to="/admin/usuarios" className="btn btn-primary ms-2">
+        Administrar usuarios
+      </Link>
+
+      <Link
+        to="/admin/ordenes"
+        className="btn btn-outline-primary ms-2"
+      >
+        Administrar órdenes
+      </Link>
+
     </section>
   );
 }
