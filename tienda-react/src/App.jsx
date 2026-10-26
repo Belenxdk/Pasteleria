@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import Encabezado from './components/Encabezado.jsx'
 import PiePagina from './components/PiePagina.jsx'
@@ -13,11 +13,16 @@ import {
   calcularTotal,
   cantidadTotal,
 } from './utils/carrito.js'
+import { leerCarrito, guardarCarrito } from './utils/almacenamiento.js'
 
 function App(){
-  const [carrito, setCarrito] = useState([])
+  const [carrito, setCarrito] = useState(leerCarrito)
   const cantidad = cantidadTotal(carrito)
   const total = calcularTotal(carrito)
+
+  useEffect(() => {
+    guardarCarrito(carrito)
+  }, [carrito])
 
   function agregarAlCarrito(producto){
     setCarrito((actual) => agregarProducto(actual, producto))
