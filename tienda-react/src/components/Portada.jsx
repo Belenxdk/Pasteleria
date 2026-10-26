@@ -1,13 +1,16 @@
-import {Container} from 'react-bootstrap'
-function Portada (){
+import { Link } from 'react-router-dom'
+import { Button } from 'react-bootstrap'
+
+function Portada() {
     return (
-        <header id = 'Inicio' className='portada py-5 mb-4'>
-            <Container>
-                <h1 className='display-5 fw-bold'>Endulzamos tus momentos especiales</h1>
-                <p className='lead mb-0'>
-                    Pasteleria Mil Sabores - Desde 1950
+        <header id="inicio" className="portada">
+            <div className="portada-contenido">
+                <h1>Endulzamos tus momentos especiales</h1>
+                <p>
+                    Repostería artesanal hecha con amor desde 1950. Tortas, pasteles y postres para cada ocasión.
                 </p>
-            </Container>
+                <Button as={Link} to="/productos" className="btn-primario">Ver productos</Button>
+            </div>
         </header>
     )
 }

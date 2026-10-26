@@ -1,23 +1,35 @@
-import { Container } from 'react-bootstrap'
-
+import { useState } from "react";
+import { Routes, Route } from "react-router-dom";
 import Encabezado from './components/Encabezado.jsx'
-import Portada from './components/Portada.jsx'
-import Catalogo from './components/Catalogo.jsx'
 import PiePagina from './components/PiePagina.jsx'
-import productos from './data/productos.js'
+import Home from './pages/tienda/Home.jsx'
+import Productos from './pages/tienda/Productos.jsx'
+import Nosotros from "./pages/tienda/Nosotros.jsx";
 
+function App(){
+  const [carrito, setCarrito] = useState([])
+  const cantidadTotal = carrito.reduce((suma,item)=> suma + item.cantidad, 0)
 
-function App() {
+  function agregarAlCarrito(producto){
+    setCarrito((carritoActual) => {
+      const existe = carritoActual.find((item)=> item.id === producto.id)
+      if (existe){
+        return carritoActual.map((item) =>
+          item.id === producto.id ? { ...item, cantidad: item.cantidad + 1 } : item,
+        )
+      }
+      return [...carritoActual, { ...producto, cantidad:1}]
+    })
+  }
+
   return (
     <>
-      <Encabezado />
-      <Portada />
-
-      <Container as="main" id="productos">
-        <h2 className="mb-3">Nuestros Productos</h2>
-        <Catalogo productos={productos} />
-      </Container>
-
+      <Encabezado cantidad={cantidadTotal} />
+      <Routes>
+        <Route path="/" element={<Home onAgregar={agregarAlCarrito} />} />
+        <Route path="/productos" element={<Productos onAgregar={agregarAlCarrito} />} />
+        <Route path="/nosotros" element={<Nosotros/>} />
+      </Routes>
       <PiePagina />
     </>
   )

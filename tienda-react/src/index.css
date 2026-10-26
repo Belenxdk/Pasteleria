@@ -1,30 +1,226 @@
+:root {
+  --color-fondo: #fff5e1;
+  --color-acento-1: #ffc0cb;
+  --color-acento-2: #8b4513;
+  --color-texto: #5d4037;
+
+  --font-titulos: "Pacifico", cursive;
+  --font-texto: "Lato", sans-serif;
+}
+
 body {
   margin: 0;
-  font-family: system-ui, sans-serif;
-  background-color: #fff5e1;
-  color: #5d4037;
+  font-family: var(--font-texto);
+  background-color: var(--color-fondo);
+  color: var(--color-texto);
 }
 
-.contenedor {
-  max-width: 720px;
-  margin: 4rem auto;
+h1, h2, h3, h4, h5 {
+  font-family: var(--font-titulos);
+  color: var(--color-acento-2);
+}
+
+.imagen-producto {
+  height: 220px;
+  object-fit: cover;
+}
+
+/* Barra superior */
+.encabezado {
+  padding: 1rem 0;
+}
+
+.logo {
+  font-family: var(--font-titulos);
+  font-size: 1.5rem;
+  color: var(--color-acento-2);
+}
+
+.logo span {
+  color: var(--color-acento-1);
+}
+
+.encabezado .nav-link {
+  font-weight: 700;
+  color: var(--color-texto);
+}
+
+.encabezado .nav-link:hover {
+  color: var(--color-acento-1);
+}
+
+.btn-login {
+  --bs-btn-color: var(--color-acento-2);
+  --bs-btn-border-color: var(--color-acento-2);
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: var(--color-acento-2);
+  --bs-btn-hover-border-color: var(--color-acento-2);
+  border-width: 2px;
+  border-radius: 20px;
+  font-weight: 700;
+}
+
+.carrito {
+  font-size: 1.2rem;
+  color: var(--color-texto);
+  text-decoration: none;
+}
+
+/* Portada */
+.portada {
+  background:
+    linear-gradient(rgba(139, 69, 19, 0.4), rgba(139, 69, 19, 0.4)),
+    url("/img/productos/tienda.jpg") center/cover no-repeat;
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
   padding: 2rem;
+  color: #fff;
+  margin-bottom: 2rem;
+}
+
+.portada-contenido {
+  max-width: 600px;
+}
+
+.portada h1 {
+  color: #fff;
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.portada p {
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+}
+
+.btn-primario {
+  --bs-btn-bg: var(--color-acento-1);
+  --bs-btn-border-color: var(--color-acento-1);
+  --bs-btn-color: var(--color-acento-2);
+  --bs-btn-hover-bg: var(--color-acento-1);
+  --bs-btn-hover-border-color: var(--color-acento-1);
+  --bs-btn-hover-color: var(--color-acento-2);
+  padding: 0.8rem 2rem;
+  border-radius: 25px;
+  font-weight: 700;
+  transition: transform 0.2s;
+}
+
+.btn-primario:hover {
+  transform: scale(1.05);
+}
+.tarjeta-producto {
+  border: none;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+}
+
+.tarjeta-producto:hover {
+  transform: translateY(-5px);
+}
+
+.tarjeta-producto .precio {
+  font-weight: 700;
+}
+
+.btn-agregar {
+  --bs-btn-color: var(--color-acento-2);
+  --bs-btn-bg: transparent;
+  --bs-btn-border-color: var(--color-acento-1);
+  --bs-btn-hover-color: var(--color-acento-2);
+  --bs-btn-hover-bg: var(--color-acento-1);
+  --bs-btn-hover-border-color: var(--color-acento-1);
+  --bs-btn-active-color: var(--color-acento-2);
+  --bs-btn-active-bg: var(--color-acento-1);
+  --bs-btn-active-border-color: var(--color-acento-1);
+  border-width: 2px;
+  border-radius: 25px;
+  font-weight: 700;
+}
+.tarjeta-producto .card-title{
+  font-family: var(--font-titulos);
+  color: var(--color-acento-2);
+}
+
+.btn-filtro {
+  --bs-btn-color: var(--color-acento-2);
+  --bs-btn-bg: #fff;
+  --bs-btn-border-color: var(--color-acento-1);
+  --bs-btn-hover-color: var(--color-acento-2);
+  --bs-btn-hover-bg: var(--color-acento-1);
+  --bs-btn-hover-border-color: var(--color-acento-1);
+  border-width: 2px;
+  border-radius: 25px;
+  font-weight: 700;
+  padding: 0.4rem 1.2rem;
+}
+
+.btn-filtro.activo{
+  background-color: var(--color-acento-2);
+  border-color: var(--color-acento-2);
+  color: #fff;
+}
+
+.historia{
+  background-color: #fff;
+  padding: 3rem 0;
+  margin-top: 3rem;
+}
+.historia img{
+  border-radius: 12px;
+}
+
+.pie{
+  background-color: var(--color-acento-2);
+  color: #fff;
+  padding: 2rem 0;
+  margin-top: 3rem;
+}
+.pie h3,
+.pie h4 {
+  color: var(--color-acento-1);
+}
+
+.pie h3 {
+  font-size: 1.4rem;
+}
+
+.pie h4{
+  font-size: 1.1rem;
+}
+
+.pie a{
+  color: #fff;
+  text-decoration: none;
+}
+
+.pie a:hover{
+  color: var(--color-acento-1);
+}
+
+.historia-caja {
   background-color: #fff;
   border-radius: 12px;
-  box-shadow: 0 4px 16px rgb(0 0 0 / 0.08);
-  text-align: center;
+  padding: 2rem;
 }
 
-h1 {
-  color: #8b4513;
+.historia-caja img{
+  border-radius: 12px;
 }
 
-.pie {
-  color: #6b7280;
-  font-size: 0.9rem;
+.tarjeta-valor{
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.portada{
-  background: linear-gradient(135deg, #8b4513, #d2d2d2);
-  color: #fff;
+.tarjeta-rosada{
+  border: none;
+  border-radius: 12px;
+  background-color: var(--color-acento-1);
 }
