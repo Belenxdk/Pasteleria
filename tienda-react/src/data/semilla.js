@@ -1,0 +1,32 @@
+export const productosIniciales = [
+  {
+    id: "torta-chocolate",
+    nombre: "Torta de Chocolate",
+    descripcion: "Torta artesanal de chocolate con relleno de manjar.",
+    categoria: "Tortas",
+    precio: 25000,
+    imagen: "/img/productos/tortaChocolate.jpg",
+    stock: 10,
+    activo: true,
+  },
+  {
+    id: "cheesecake-frutos-rojos",
+    nombre: "Cheesecake Frutos Rojos",
+    descripcion: "Cheesecake cremoso con cubierta de frutos rojos.",
+    categoria: "Tortas",
+    precio: 22000,
+    imagen: "/img/productos/ChescakedeFrutosRojos.jpg",
+    stock: 8,
+    activo: true,
+  },
+  {
+    id: "cupcakes",
+    nombre: "Cupcakes Surtidos (6 un.)",
+    descripcion: "Seis cupcakes surtidos para compartir.",
+    categoria: "Pastelería Individual",
+    precio: 9000,
+    imagen: "/img/productos/cupcakes.jpg",
+    stock: 15,
+    activo: true,
+  },
+];
