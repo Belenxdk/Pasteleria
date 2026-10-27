@@ -2,12 +2,12 @@ import { Link } from 'react-router-dom'
 import { Container, Row, Col, Button } from 'react-bootstrap'
 import Portada from '../../components/Portada.jsx'
 import TarjetaProducto from '../../components/TarjetaProducto.jsx'
-import productos from '../../data/productos.js'
+import { listarProductos } from '../../data/productos.js'
 
 const idsFavoritos = ['torta-chocolate', 'cheesecake-frutos-rojos', 'macarons']
 
 function Home({ onAgregar }) {
-    const favoritos = productos.filter((p) => idsFavoritos.includes(p.id))
+    const favoritos = listarProductos().filter((p) => idsFavoritos.includes(p.id))
 
     return (
         <>
