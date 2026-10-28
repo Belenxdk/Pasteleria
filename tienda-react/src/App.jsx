@@ -11,6 +11,7 @@ import Carrito from "./pages/tienda/Carrito.jsx";
 import Checkout from "./pages/tienda/Checkout.jsx";
 import PagoCorrecto from "./pages/tienda/PagoCorrecto.jsx";
 import PagoError from "./pages/tienda/PagoError.jsx";
+import Contacto from "./pages/tienda/Contacto.jsx";
 
 import Login from "./pages/auth/Login.jsx";
 import Registro from "./pages/auth/Registro.jsx";
@@ -82,6 +83,7 @@ function App() {
         />
         <Route path="/pago-correcto" element={<PagoCorrecto />} />
         <Route path="/pago-error" element={<PagoError />} />
+        <Route path="/contacto" element={<Contacto />} />
 
         <Route path="/login" element={<Login />} />
         <Route path="/registro" element={<Registro />} />
