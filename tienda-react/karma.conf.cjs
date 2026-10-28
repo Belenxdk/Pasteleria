@@ -25,7 +25,12 @@ module.exports = function (config) {
         rules: [
           {
             test: /\.js$/,
-            include: path.resolve(__dirname, "src/data"),
+            include:[
+              path.resolve(__dirname, "src/data"),
+              path.resolve(__dirname, "src/utils")
+
+            ] ,
+          
 
             use: {
               loader: "babel-loader",
