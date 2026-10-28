@@ -254,3 +254,20 @@ h1, h2, h3, h4, h5 {
   border-radius: 12px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
+
+.caja-contacto {
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+}
+
+.lista-contacto {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.lista-contacto li {
+  margin-bottom: 0.75rem;
+}

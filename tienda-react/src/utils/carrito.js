@@ -25,3 +25,7 @@ export function calcularTotal(carrito) {
 export function cantidadTotal(carrito) {
   return carrito.reduce((suma, item) => suma + item.cantidad, 0)
 }
+
+export function armarItemsOrden(carrito) {
+  return carrito.map((item) => ({ productoId: item.id, cantidad: item.cantidad }))
+}
