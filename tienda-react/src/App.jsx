@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Routes, Route, Link } from "react-router-dom";
 
 import Encabezado from "./components/Encabezado.jsx";
@@ -6,6 +7,10 @@ import PiePagina from "./components/PiePagina.jsx";
 import Home from "./pages/tienda/Home.jsx";
 import Productos from "./pages/tienda/Productos.jsx";
 import Nosotros from "./pages/tienda/Nosotros.jsx";
+import Carrito from "./pages/tienda/Carrito.jsx";
+import Checkout from "./pages/tienda/Checkout.jsx";
+import PagoCorrecto from "./pages/tienda/PagoCorrecto.jsx";
+import PagoError from "./pages/tienda/PagoError.jsx";
 
 import Login from "./pages/auth/Login.jsx";
 import Registro from "./pages/auth/Registro.jsx";
@@ -16,40 +21,71 @@ import ProductosAdmin from "./pages/admin/ProductosAdmin.jsx";
 import UsuariosAdmin from "./pages/admin/UsuariosAdmin.jsx";
 import OrdenesAdmin from "./pages/admin/OrdenesAdmin.jsx";
 
-import { useState } from "react";
+import {
+  agregarProducto,
+  cambiarCantidad,
+  eliminarItem,
+  calcularTotal,
+  cantidadTotal,
+} from "./utils/carrito.js";
+import { leerCarrito, guardarCarrito } from "./utils/almacenamiento.js";
 
 function App() {
-  // ESTADO del carrito (vive en App porque lo usan Encabezado y las tarjetas)
-  const [carrito, setCarrito] = useState([]);
-  const cantidadTotal = carrito.reduce((suma, item) => suma + item.cantidad, 0);
+  const [carrito, setCarrito] = useState(leerCarrito);
+  const cantidad = cantidadTotal(carrito);
+  const total = calcularTotal(carrito);
+
+  useEffect(() => {
+    guardarCarrito(carrito);
+  }, [carrito]);
 
   function agregarAlCarrito(producto) {
-    setCarrito((carritoActual) => {
-      const existe = carritoActual.find((item) => item.id === producto.id);
-      if (existe) {
-        return carritoActual.map((item) =>
-          item.id === producto.id ? { ...item, cantidad: item.cantidad + 1 } : item,
-        );
-      }
-      return [...carritoActual, { ...producto, cantidad: 1 }];
-    });
+    setCarrito((actual) => agregarProducto(actual, producto));
+  }
+
+  function cambiarCantidadItem(id, nuevaCantidad) {
+    setCarrito((actual) => cambiarCantidad(actual, id, nuevaCantidad));
+  }
+
+  function eliminarDelCarrito(id) {
+    setCarrito((actual) => eliminarItem(actual, id));
+  }
+
+  function vaciarCarrito() {
+    setCarrito([]);
   }
 
   return (
     <>
-      <Encabezado cantidad={cantidadTotal} />
+      <Encabezado cantidad={cantidad} />
 
       <Routes>
-        {/* Tienda pública */}
         <Route path="/" element={<Home onAgregar={agregarAlCarrito} />} />
         <Route path="/productos" element={<Productos onAgregar={agregarAlCarrito} />} />
         <Route path="/nosotros" element={<Nosotros />} />
+        <Route
+          path="/carrito"
+          element={
+            <Carrito
+              carrito={carrito}
+              cantidad={cantidad}
+              total={total}
+              onCambiarCantidad={cambiarCantidadItem}
+              onEliminar={eliminarDelCarrito}
+              onVaciar={vaciarCarrito}
+            />
+          }
+        />
+        <Route
+          path="/checkout"
+          element={<Checkout carrito={carrito} total={total} onVaciar={vaciarCarrito} />}
+        />
+        <Route path="/pago-correcto" element={<PagoCorrecto />} />
+        <Route path="/pago-error" element={<PagoError />} />
 
-        {/* Cuentas */}
         <Route path="/login" element={<Login />} />
         <Route path="/registro" element={<Registro />} />
 
-        {/* Administración (protegida) */}
         <Route path="/admin" element={<RutaAdmin><Dashboard /></RutaAdmin>} />
         <Route path="/admin/productos" element={<RutaAdmin><ProductosAdmin /></RutaAdmin>} />
         <Route path="/admin/usuarios" element={<RutaAdmin><UsuariosAdmin /></RutaAdmin>} />

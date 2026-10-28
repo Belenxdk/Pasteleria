@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { Button, Card } from 'react-bootstrap'
 import { formatearPrecio } from '../utils/formato.js'
 
@@ -14,7 +15,7 @@ function ResumenCarrito({ cantidad, total, onVaciar }) {
                     <span>Total</span>
                     <span>{formatearPrecio(total)}</span>
                 </p>
-                <Button className="btn-primario w-100 mb-2">Ir a pagar</Button>
+                <Button as={Link} to="/checkout" className="btn-primario w-100 mb-2">Ir a pagar</Button>
                 <Button className="btn-agregar w-100" onClick={onVaciar}>Vaciar carrito</Button>
             </Card.Body>
         </Card>
