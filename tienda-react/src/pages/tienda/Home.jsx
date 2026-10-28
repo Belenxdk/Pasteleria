@@ -7,7 +7,7 @@ import { listarProductos } from '../../data/productos.js'
 const idsFavoritos = ['torta-chocolate', 'cheesecake-frutos-rojos', 'macarons']
 
 function Home({ onAgregar }) {
-    const favoritos = listarProductos().filter((p) => idsFavoritos.includes(p.id))
+    const favoritos = listarProductos().filter((p) => idsFavoritos.includes(p.id) && p.activo !== false)
 
     return (
         <>

@@ -28,6 +28,7 @@ export function iniciarSesion(email, password) {
 
   sessionStorage.setItem(CLAVE_SESION, JSON.stringify(sesion));
 
+  window.dispatchEvent(new Event("sesion-cambiada"));
   return sesion;
 }
 
@@ -38,4 +39,5 @@ export function obtenerSesion() {
 
 export function cerrarSesion() {
   sessionStorage.removeItem(CLAVE_SESION);
+  window.dispatchEvent(new Event("sesion-cambiada"));
 }

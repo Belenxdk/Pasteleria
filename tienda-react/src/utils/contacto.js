@@ -24,3 +24,13 @@ export function validarContacto(datos) {
 
   return errores
 }
+
+export function guardarContacto(datos) {
+  if (Object.keys(validarContacto(datos)).length) throw new Error('Revisa el formulario.');
+  const clave = 'milsabores_contactos';
+  const guardados = JSON.parse(localStorage.getItem(clave) || '[]');
+  const mensajes = Array.isArray(guardados) ? guardados : [];
+  const mensaje = { ...datos, id: crypto.randomUUID(), fecha: new Date().toISOString() };
+  localStorage.setItem(clave, JSON.stringify([...mensajes, mensaje]));
+  return mensaje;
+}

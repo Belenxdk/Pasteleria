@@ -3,7 +3,7 @@ import { productosIniciales } from "./semilla.js";
 
 const CLAVE = "milsabores_productos";
 
-function guardarProductos(productos) {
+export function guardarProductos(productos) {
   localStorage.setItem(CLAVE, JSON.stringify(productos));
 }
 

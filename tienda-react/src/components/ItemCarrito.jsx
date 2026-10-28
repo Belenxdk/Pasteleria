@@ -17,7 +17,7 @@ function ItemCarrito({ item, onCambiarCantidad, onEliminar }) {
                 <ButtonGroup aria-label={`Cantidad de ${nombre}`}>
                     <Button className="btn-agregar" aria-label="Disminuir" onClick={() => onCambiarCantidad(id, cantidad - 1)}>−</Button>
                     <Button className="btn-cantidad" disabled>{cantidad}</Button>
-                    <Button className="btn-agregar" aria-label="Aumentar" onClick={() => onCambiarCantidad(id, cantidad + 1)}>+</Button>
+                    <Button className="btn-agregar" disabled={cantidad >= item.stock} aria-label="Aumentar" onClick={() => onCambiarCantidad(id, cantidad + 1)}>+</Button>
                 </ButtonGroup>
             </Col>
             <Col xs={4} md={2} className="fw-bold">

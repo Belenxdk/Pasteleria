@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Alert, Button, Col, Container, Form, Row } from 'react-bootstrap'
-import { validarContacto } from '../../utils/contacto.js'
+import { guardarContacto, validarContacto } from '../../utils/contacto.js'
 
 const vacio = { nombre: '', correo: '', telefono: '', asunto: '', mensaje: '' }
 
@@ -10,6 +10,7 @@ function Contacto() {
     const [enviado, setEnviado] = useState(false)
 
     function cambiar(evento) {
+        setEnviado(false)
         const { name, value } = evento.target
         setDatos((actual) => ({ ...actual, [name]: value }))
     }
@@ -20,8 +21,14 @@ function Contacto() {
         setErrores(nuevosErrores)
 
         if (Object.keys(nuevosErrores).length === 0) {
-            setEnviado(true)
-            setDatos(vacio)
+            try {
+                guardarContacto(datos)
+                setEnviado(true)
+                setDatos(vacio)
+            } catch {
+                setEnviado(false)
+                setErrores({ general: 'No se pudo guardar el mensaje. Intenta nuevamente.' })
+            }
         } else {
             setEnviado(false)
         }
@@ -37,9 +44,10 @@ function Contacto() {
             <Row className="g-4">
                 <Col lg={7}>
                     <Form noValidate onSubmit={enviar} className="caja-contacto">
+                        {errores.general && <Alert variant="danger">{errores.general}</Alert>}
                         {enviado && (
                             <Alert variant="success">
-                                ¡Gracias! Recibimos tu mensaje y te responderemos pronto.
+                                Mensaje guardado en este navegador como demostración. No se envió un correo real.
                             </Alert>
                         )}
 

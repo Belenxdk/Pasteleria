@@ -214,4 +214,24 @@ describe("Pastelería Mil Sabores: lógica de datos", () => {
 
     expect(obtenerOrden(orden.id).estado).toBe("En preparación");
   });
+
+  it("11. Reserva stock y rechaza una segunda compra sin existencias", () => {
+    crearOrden({ usuarioId: cliente.id, items: [{ productoId: producto.id, cantidad: 5 }] });
+    expect(obtenerProducto(producto.id).stock).toBe(0);
+    expect(() => crearOrden({ usuarioId: cliente.id, items: [{ productoId: producto.id, cantidad: 1 }] })).toThrowError();
+    expect(listarOrdenes().length).toBe(1);
+  });
+  it("12. Rechaza un total cambiado sin descontar stock ni guardar orden", () => {
+    actualizarProducto(producto.id, { precio: 12000 });
+    expect(() => crearOrden({ usuarioId: cliente.id, items: [{ productoId: producto.id, cantidad: 1 }], totalEsperado: 10000 })).toThrowError();
+    expect(obtenerProducto(producto.id).stock).toBe(5);
+    expect(listarOrdenes().length).toBe(0);
+  });
+  it("13. Cancelar devuelve stock una sola vez y no permite reactivar", () => {
+    const orden = crearOrden({ usuarioId: cliente.id, items: [{ productoId: producto.id, cantidad: 2 }] });
+    actualizarEstadoOrden(orden.id, 'Cancelada');
+    actualizarEstadoOrden(orden.id, 'Cancelada');
+    expect(obtenerProducto(producto.id).stock).toBe(5);
+    expect(() => actualizarEstadoOrden(orden.id, 'Pendiente')).toThrowError();
+  });
 });

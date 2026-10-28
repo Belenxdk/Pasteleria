@@ -1,4 +1,4 @@
-import { obtenerProducto } from "./productos.js";
+import { obtenerProducto, listarProductos, guardarProductos } from "./productos.js";
 import { listarUsuarios } from "./usuarios.js";
 
 const CLAVE = "milsabores_ordenes";
@@ -26,7 +26,7 @@ export function obtenerOrden(id) {
 
 // Recibe el usuario y los artículos del carrito.
 // Cada artículo debe tener productoId y cantidad.
-export function crearOrden({ usuarioId, items }) {
+export function crearOrden({ usuarioId, items, totalEsperado }) {
   const usuario = listarUsuarios().find(
     (usuario) => usuario.id === usuarioId
   );
@@ -88,12 +88,25 @@ export function crearOrden({ usuarioId, items }) {
     items: detalle,
     total: detalle.reduce((suma, item) => suma + item.subtotal, 0),
     estado: "Pendiente",
+    stockReservado: true,
     fecha: new Date().toISOString(),
   };
 
+  if (totalEsperado !== undefined && totalEsperado !== nuevaOrden.total) {
+    throw new Error("El precio cambió. Revisa el total actualizado antes de confirmar.");
+  }
+  const productosAntes = listarProductos();
+  const productosDespues = productosAntes.map((p) => ({
+    ...p, stock: p.stock - (cantidades.get(p.id) || 0),
+  }));
   const ordenes = listarOrdenes();
-  ordenes.push(nuevaOrden);
-  guardarOrdenes(ordenes);
+  guardarProductos(productosDespues);
+  try {
+    guardarOrdenes([...ordenes, nuevaOrden]);
+  } catch (error) {
+    guardarProductos(productosAntes);
+    throw error;
+  }
 
   return nuevaOrden;
 }
@@ -110,12 +123,29 @@ export function actualizarEstadoOrden(id, nuevoEstado) {
     throw new Error("La orden no existe.");
   }
 
+  const anterior = ordenes[indice];
+  if (anterior.estado === nuevoEstado) return anterior;
+  if (anterior.estado === "Cancelada") {
+    throw new Error("Una orden cancelada no se puede reactivar. Crea una orden nueva.");
+  }
+  const productosAntes = listarProductos();
+  if (nuevoEstado === "Cancelada" && anterior.stockReservado === true) {
+    guardarProductos(productosAntes.map((p) => ({
+      ...p,
+      stock: p.stock + anterior.items.filter((i) => i.productoId === p.id)
+        .reduce((suma, i) => suma + i.cantidad, 0),
+    })));
+  }
   ordenes[indice] = {
     ...ordenes[indice],
     estado: nuevoEstado,
   };
 
-  guardarOrdenes(ordenes);
+  try { guardarOrdenes(ordenes); }
+  catch (error) {
+    if (nuevoEstado === "Cancelada" && anterior.stockReservado === true) guardarProductos(productosAntes);
+    throw error;
+  }
 
   return ordenes[indice];
 }   

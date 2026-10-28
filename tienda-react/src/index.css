@@ -271,3 +271,12 @@ h1, h2, h3, h4, h5 {
 .lista-contacto li {
   margin-bottom: 0.75rem;
 }
+.stock-producto { font-size: .95rem; font-weight: 700; color: var(--color-acento-2); }
+@media (max-width: 1399.98px) {
+  .encabezado .navbar-collapse { padding-top: 1rem; }
+  .encabezado .navbar-collapse > * { margin-bottom: .75rem; }
+}
+@media (max-width: 359.98px) {
+  .encabezado .logo { font-size: 1.2rem; margin-right: .25rem; }
+  .encabezado > .container-fluid { padding-left: .75rem !important; padding-right: .75rem !important; }
+}

@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import {
   iniciarSesion,
   obtenerSesion,
@@ -6,10 +7,18 @@ import {
 } from "../../data/auth.js";
 
 function Login() {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [sesion, setSesion] = useState(() => obtenerSesion());
+
+  useEffect(() => {
+    const actualizar = () => setSesion(obtenerSesion());
+    window.addEventListener('sesion-cambiada', actualizar);
+    return () => window.removeEventListener('sesion-cambiada', actualizar);
+  }, []);
 
   function manejarLogin(evento) {
     evento.preventDefault();
@@ -18,6 +27,7 @@ function Login() {
     try {
       const usuario = iniciarSesion(email, password);
       setSesion(usuario);
+      if (location.state?.volver === "/checkout") navigate("/checkout");
       setEmail("");
       setPassword("");
     } catch (error) {
@@ -41,6 +51,7 @@ function Login() {
               {sesion ? (
                 <>
                   <h2>Hola, {sesion.nombre}</h2>
+                  <Link to="/checkout" className="btn btn-primario mb-3">Continuar compra</Link>
 
                   <div className="alert alert-success" role="status">
                     Has iniciado sesión correctamente.
