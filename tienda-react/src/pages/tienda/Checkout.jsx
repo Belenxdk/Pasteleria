@@ -1,24 +1,33 @@
+import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Alert, Button, Container, Table } from 'react-bootstrap'
 import { obtenerSesion } from '../../data/auth.js'
-import { crearOrden } from '../../data/ordenes.js'
+import { enviarOrden } from '../../servicios/ordenes.js'
+import { mensajeDeError } from '../../servicios/errores.js'
 import { armarItemsOrden } from '../../utils/carrito.js'
 import { formatearPrecio } from '../../utils/formato.js'
 
 function Checkout({ carrito, total, onVaciar }) {
     const navigate = useNavigate()
     const sesion = obtenerSesion()
+    const [enviando, setEnviando] = useState(false)
 
-    function confirmarCompra() {
+    async function confirmarCompra() {
+        setEnviando(true)
         try {
-            const orden = crearOrden({
+            const orden = await enviarOrden({
                 usuarioId: sesion.id,
+                cliente: `${sesion.nombre} ${sesion.apellidos ?? ''}`.trim(),
+                email: sesion.email,
+                direccion: sesion.direccion ?? '',
                 items: armarItemsOrden(carrito),
             })
             onVaciar()
             navigate('/pago-correcto', { state: { orden } })
         } catch (error) {
-            navigate('/pago-error', { state: { mensaje: error.message } })
+            navigate('/pago-error', { state: { mensaje: mensajeDeError(error) } })
+        } finally {
+            setEnviando(false)
         }
     }
 
@@ -75,7 +84,9 @@ function Checkout({ carrito, total, onVaciar }) {
 
             <div className="d-flex justify-content-center gap-2">
                 <Button as={Link} to="/carrito" className="btn-agregar">Volver al carrito</Button>
-                <Button className="btn-primario" onClick={confirmarCompra}>Confirmar compra</Button>
+                <Button className="btn-primario" onClick={confirmarCompra} disabled={enviando}>
+                    {enviando ? 'Enviando…' : 'Confirmar compra'}
+                </Button>
             </div>
         </Container>
     )

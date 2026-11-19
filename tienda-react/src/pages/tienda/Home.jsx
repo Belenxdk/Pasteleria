@@ -1,13 +1,39 @@
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Container, Row, Col, Button } from 'react-bootstrap'
+import { Container, Row, Col, Button, Spinner, Alert } from 'react-bootstrap'
 import Portada from '../../components/Portada.jsx'
 import TarjetaProducto from '../../components/TarjetaProducto.jsx'
-import { listarProductos } from '../../data/productos.js'
+import { listarProductos } from '../../servicios/productos.js'
+import { mensajeDeError } from '../../servicios/errores.js'
 
 const idsFavoritos = ['torta-chocolate', 'cheesecake-frutos-rojos', 'macarons']
 
 function Home({ onAgregar }) {
-    const favoritos = listarProductos().filter((p) => idsFavoritos.includes(p.id))
+    const [favoritos, setFavoritos] = useState([])
+    const [cargando, setCargando] = useState(true)
+    const [error, setError] = useState(null)
+
+    useEffect(() => {
+        let ignorar = false
+
+        async function cargar() {
+            try {
+                const datos = await listarProductos()
+                if (!ignorar) {
+                    setFavoritos(datos.filter((p) => idsFavoritos.includes(p.id)))
+                }
+            } catch (e) {
+                if (!ignorar) setError(mensajeDeError(e))
+            } finally {
+                if (!ignorar) setCargando(false)
+            }
+        }
+
+        cargar()
+        return () => {
+            ignorar = true
+        }
+    }, [])
 
     return (
         <>
@@ -15,13 +41,22 @@ function Home({ onAgregar }) {
 
             <Container as="section" className="py-4">
                 <h2 className="text-center mb-4">Nuestros Productos Favoritos</h2>
-                <Row xs={1} sm={2} lg={3} className="g-4">
-                    {favoritos.map((producto) => (
-                        <Col key={producto.id}>
-                            <TarjetaProducto producto={producto} onAgregar={onAgregar} />
-                        </Col>
-                    ))}
-                </Row>
+
+                {cargando ? (
+                    <div className="text-center py-4">
+                        <Spinner animation="border" role="status" />
+                    </div>
+                ) : error ? (
+                    <Alert variant="danger">{error}</Alert>
+                ) : (
+                    <Row xs={1} sm={2} lg={3} className="g-4">
+                        {favoritos.map((producto) => (
+                            <Col key={producto.id}>
+                                <TarjetaProducto producto={producto} onAgregar={onAgregar} />
+                            </Col>
+                        ))}
+                    </Row>
+                )}
             </Container>
 
             <section className="historia">
