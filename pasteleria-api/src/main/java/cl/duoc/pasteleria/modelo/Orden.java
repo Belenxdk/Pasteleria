@@ -35,7 +35,7 @@ public class Orden {
     public void setUsuarioId(String usuarioId) {this.usuarioId = usuarioId;}
 
     public String getCliente(){return cliente;}
-    public void setCliente(String cliente){this.email = email;}
+    public void setCliente(String cliente){this.cliente = cliente;}
 
     public String getEmail(){return email;}
     public void setEmail(String email){this.email = email;}

@@ -1,12 +1,36 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { listarProductos } from "../../data/productos.js";
+import { listarProductos } from "../../servicios/productos.js";
+import { mensajeDeError } from "../../servicios/errores.js";
 import { listarUsuarios } from "../../data/usuarios.js";
 import { obtenerSesion } from "../../data/auth.js";
 
 function Dashboard() {
-  const productos = listarProductos();
+  const [productos, setProductos] = useState([]);
+  const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState("");
   const usuarios = listarUsuarios();
   const sesion = obtenerSesion();
+
+  useEffect(() => {
+    let ignorar = false;
+
+    async function cargar() {
+      try {
+        const datos = await listarProductos();
+        if (!ignorar) setProductos(datos);
+      } catch (e) {
+        if (!ignorar) setError(mensajeDeError(e));
+      } finally {
+        if (!ignorar) setCargando(false);
+      }
+    }
+
+    cargar();
+    return () => {
+      ignorar = true;
+    };
+  }, []);
 
   const productosSinStock = productos.filter(
     (producto) => producto.stock === 0
@@ -17,12 +41,20 @@ function Dashboard() {
       <h2>Panel de administración</h2>
       <p>Bienvenido, {sesion?.nombre}.</p>
 
+      {error && (
+        <div className="alert alert-danger" role="alert">
+          {error}
+        </div>
+      )}
+
       <div className="row g-3 mb-4">
         <div className="col-12 col-md-4">
           <div className="card h-100 shadow-sm">
             <div className="card-body">
               <h3 className="h5">Productos registrados</h3>
-              <p className="display-6 mb-0">{productos.length}</p>
+              <p className="display-6 mb-0">
+                {cargando ? "-" : productos.length}
+              </p>
             </div>
           </div>
         </div>
@@ -43,7 +75,9 @@ function Dashboard() {
           <div className="card h-100 shadow-sm">
             <div className="card-body">
               <h3 className="h5">Productos sin stock</h3>
-              <p className="display-6 mb-0">{productosSinStock}</p>
+              <p className="display-6 mb-0">
+                {cargando ? "-" : productosSinStock}
+              </p>
             </div>
           </div>
         </div>
@@ -53,18 +87,13 @@ function Dashboard() {
         Administrar productos
       </Link>
 
-      <Link
-        to="/admin/usuarios" className="btn btn-primary ms-2">
+      <Link to="/admin/usuarios" className="btn btn-primary ms-2">
         Administrar usuarios
       </Link>
 
-      <Link
-        to="/admin/ordenes"
-        className="btn btn-outline-primary ms-2"
-      >
+      <Link to="/admin/ordenes" className="btn btn-outline-primary ms-2">
         Administrar órdenes
       </Link>
-
     </section>
   );
 }
