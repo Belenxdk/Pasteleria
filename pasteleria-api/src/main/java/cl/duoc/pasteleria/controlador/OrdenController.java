@@ -7,6 +7,7 @@ import cl.duoc.pasteleria.servicio.OrdenService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/ordenes")
@@ -22,5 +23,15 @@ public class OrdenController {
     @ResponseStatus(HttpStatus.CREATED)
     public Orden crear(@Valid @RequestBody PedidoRequest solicitud){
         return servicio.crear(solicitud);
+    }
+
+    @GetMapping
+    public List<Orden> listar() {
+        return servicio.listar();
+    }
+
+    @GetMapping("/{id}")
+    public Orden detalle(@PathVariable String id) {
+        return servicio.obtener(id);
     }
 }

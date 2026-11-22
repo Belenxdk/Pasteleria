@@ -19,6 +19,7 @@ import cl.duoc.pasteleria.modelo.Orden;
 import cl.duoc.pasteleria.modelo.Producto;
 import cl.duoc.pasteleria.repositorio.OrdenRepository;
 import cl.duoc.pasteleria.repositorio.ProductoRepository;
+import org.springframework.data.domain.Sort;
 
 @Service
 public class OrdenService {
@@ -74,5 +75,13 @@ public class OrdenService {
         orden.setFecha(LocalDateTime.now());
 
         return ordenes.save(orden);
+    }
+    public List<Orden> listar() {
+        return ordenes.findAll(Sort.by(Sort.Direction.DESC, "fecha"));
+    }
+
+    public Orden obtener(String id) {
+        return ordenes.findById(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException("La orden " + id + " no existe"));
     }
 }
