@@ -1,7 +1,27 @@
-import { NavLink, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { NavLink, Link, useNavigate } from "react-router-dom";
 import { Navbar, Nav, Container, Button } from "react-bootstrap";
+import { obtenerSesion, cerrarSesion } from "../data/auth.js";
 
 function Encabezado({ cantidad = 0 }) {
+    const [sesion, setSesion] = useState(() => obtenerSesion());
+    const navegar = useNavigate();
+
+    useEffect(() => {
+        function actualizar() {
+            setSesion(obtenerSesion());
+        }
+        window.addEventListener("sesion-cambiada", actualizar);
+        return () => window.removeEventListener("sesion-cambiada", actualizar);
+    }, []);
+
+    const puedeAdministrar = sesion?.rol === "ADMIN" || sesion?.rol === "VENDEDOR";
+
+    function salir() {
+        cerrarSesion();
+        navegar("/");
+    }
+
     return (
         <Navbar bg="white" expand="md" sticky="top" className="encabezado shadow-sm" collapseOnSelect>
             <Container fluid className="px-4">
@@ -16,12 +36,25 @@ function Encabezado({ cantidad = 0 }) {
                         <Nav.Link as={NavLink} to="/nosotros">Nosotros</Nav.Link>
                         <Nav.Link as={NavLink} to="/blog">Blog</Nav.Link>
                         <Nav.Link as={NavLink} to="/contacto">Contacto</Nav.Link>
-                        <Nav.Link as={NavLink} to="/admin">Administración</Nav.Link>
+                        {puedeAdministrar && (
+                            <Nav.Link as={NavLink} to="/admin">Administración</Nav.Link>
+                        )}
                     </Nav>
-                    <Nav.Link as={Link} to="/registro" className="me-3">Crear cuenta</Nav.Link>
-                    <Button as={Link} to="/login" variant="outline-dark" className="btn-login me-3">
-                        Iniciar sesión
-                    </Button>
+                    {sesion ? (
+                        <>
+                            <span className="me-3">Hola, {sesion.nombre}</span>
+                            <Button variant="outline-dark" className="btn-login me-3" onClick={salir}>
+                                Cerrar sesión
+                            </Button>
+                        </>
+                    ) : (
+                        <>
+                            <Nav.Link as={Link} to="/registro" className="me-3">Crear cuenta</Nav.Link>
+                            <Button as={Link} to="/login" variant="outline-dark" className="btn-login me-3">
+                                Iniciar sesión
+                            </Button>
+                        </>
+                    )}
                     <Button as={Link} to="/carrito" variant="link" className="carrito">
                         🛒 {cantidad}
                     </Button>
