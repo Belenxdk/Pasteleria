@@ -1,27 +1,52 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   listarProductos,
   crearProducto,
   actualizarProducto,
   eliminarProducto,
-} from "../../data/productos.js";
+} from "../../servicios/productos.js";
+import { mensajeDeError } from "../../servicios/errores.js";
+
+function textoDeError(e) {
+  const base = mensajeDeError(e);
+  const campos = e.response?.data?.campos;
+  if (campos && Object.keys(campos).length > 0) {
+    return `${base}: ${Object.values(campos).join(". ")}`;
+  }
+  return base;
+}
 
 function ProductosAdmin() {
-  const [productos, setProductos] = useState(() => listarProductos());
+  const [productos, setProductos] = useState([]);
+  const [cargando, setCargando] = useState(true);
+  const [guardando, setGuardando] = useState(false);
   const [mensaje, setMensaje] = useState("");
   const [error, setError] = useState("");
 
-  const [idEditando, setIdEditando] = useState(null);
+  const [editando, setEditando] = useState(null);
   const [nombre, setNombre] = useState("");
   const [categoria, setCategoria] = useState("Tortas");
   const [precio, setPrecio] = useState("");
   const [stock, setStock] = useState("");
-  const [imagen, setImagen] = useState(
-    "/img/productos/tortaChocolate.jpg"
-  );
+  const [imagen, setImagen] = useState("/img/productos/tortaChocolate.jpg");
+
+  async function recargar() {
+    try {
+      const datos = await listarProductos();
+      setProductos(datos);
+    } catch (e) {
+      setError(textoDeError(e));
+    } finally {
+      setCargando(false);
+    }
+  }
+
+  useEffect(() => {
+    recargar();
+  }, []);
 
   function limpiarFormulario() {
-    setIdEditando(null);
+    setEditando(null);
     setNombre("");
     setCategoria("Tortas");
     setPrecio("");
@@ -30,7 +55,7 @@ function ProductosAdmin() {
   }
 
   function manejarEditar(producto) {
-    setIdEditando(producto.id);
+    setEditando(producto);
     setNombre(producto.nombre);
     setCategoria(producto.categoria);
     setPrecio(String(producto.precio));
@@ -46,10 +71,15 @@ function ProductosAdmin() {
     setError("");
   }
 
-  function manejarGuardar(evento) {
+  async function manejarGuardar(evento) {
     evento.preventDefault();
     setMensaje("");
     setError("");
+
+    if (precio.trim() === "" || stock.trim() === "") {
+      setError("Completa el precio y el stock.");
+      return;
+    }
 
     const datos = {
       nombre: nombre.trim(),
@@ -59,36 +89,30 @@ function ProductosAdmin() {
       imagen: imagen.trim(),
     };
 
+    setGuardando(true);
     try {
-      if (precio.trim() === "" || stock.trim() === "") {
-        throw new Error("Completa el precio y el stock.");
-      }
-
-      if (idEditando !== null) {
-        actualizarProducto(idEditando, datos);
-      } else {
-        crearProducto({
+      if (editando !== null) {
+        await actualizarProducto(editando.id, {
           ...datos,
-          descripcion: "",
+          descripcion: editando.descripcion ?? "",
+          activo: editando.activo ?? true,
         });
+        setMensaje("Producto actualizado correctamente.");
+      } else {
+        await crearProducto({ ...datos, descripcion: "", activo: true });
+        setMensaje("Producto creado correctamente.");
       }
-
-      setProductos(listarProductos());
-      setMensaje(
-        idEditando !== null
-          ? "Producto actualizado correctamente."
-          : "Producto creado correctamente."
-      );
       limpiarFormulario();
-    } catch (error) {
-      setError(error.message);
+      await recargar();
+    } catch (e) {
+      setError(textoDeError(e));
+    } finally {
+      setGuardando(false);
     }
   }
 
-  function manejarEliminar(producto) {
-    const confirmar = window.confirm(
-      `¿Quieres eliminar "${producto.nombre}"?`
-    );
+  async function manejarEliminar(producto) {
+    const confirmar = window.confirm(`¿Quieres eliminar "${producto.nombre}"?`);
 
     if (!confirmar) return;
 
@@ -96,16 +120,16 @@ function ProductosAdmin() {
     setError("");
 
     try {
-      eliminarProducto(producto.id);
+      await eliminarProducto(producto.id);
 
-      if (idEditando === producto.id) {
+      if (editando !== null && editando.id === producto.id) {
         limpiarFormulario();
       }
 
-      setProductos(listarProductos());
       setMensaje("Producto eliminado correctamente.");
-    } catch (error) {
-      setError(error.message);
+      await recargar();
+    } catch (e) {
+      setError(textoDeError(e));
     }
   }
 
@@ -126,13 +150,8 @@ function ProductosAdmin() {
         </div>
       )}
 
-      <form
-        onSubmit={manejarGuardar}
-        className="card card-body mb-4"
-      >
-        <h3>
-          {idEditando !== null ? "Editar producto" : "Agregar producto"}
-        </h3>
+      <form onSubmit={manejarGuardar} className="card card-body mb-4">
+        <h3>{editando !== null ? "Editar producto" : "Agregar producto"}</h3>
 
         <div className="row g-3">
           <div className="col-md-6">
@@ -161,9 +180,7 @@ function ProductosAdmin() {
               required
             >
               <option value="Tortas">Tortas</option>
-              <option value="Pastelería Individual">
-                Pastelería Individual
-              </option>
+              <option value="Pastelería Individual">Pastelería Individual</option>
               <option value="Sin Azúcar">Sin Azúcar</option>
             </select>
           </div>
@@ -216,21 +233,16 @@ function ProductosAdmin() {
           </div>
 
           <div className="col-12">
-            <button
-              type="submit"
-              className="btn btn-success me-2"
-            >
-              {idEditando !== null
+            <button type="submit" className="btn btn-success me-2" disabled={guardando}>
+              {guardando
+                ? "Guardando…"
+                : editando !== null
                 ? "Guardar cambios"
                 : "Crear producto"}
             </button>
 
-            {idEditando !== null && (
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={cancelarEdicion}
-              >
+            {editando !== null && (
+              <button type="button" className="btn btn-secondary" onClick={cancelarEdicion}>
                 Cancelar edición
               </button>
             )}
@@ -238,80 +250,83 @@ function ProductosAdmin() {
         </div>
       </form>
 
-      <div className="table-responsive">
-        <table className="table table-striped table-bordered align-middle">
-          <thead className="table-dark">
-            <tr>
-              <th scope="col">Imagen</th>
-              <th scope="col">Nombre</th>
-              <th scope="col">Categoría</th>
-              <th scope="col">Precio</th>
-              <th scope="col">Stock</th>
-              <th scope="col">Acciones</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {productos.map((producto) => (
-              <tr key={producto.id}>
-                <td>
-                  <img
-                    src={producto.imagen}
-                    alt={producto.nombre}
-                    width="70"
-                    height="70"
-                    style={{
-                      objectFit: "cover",
-                      borderRadius: "8px",
-                    }}
-                  />
-                </td>
-
-                <td>{producto.nombre}</td>
-                <td>{producto.categoria}</td>
-
-                <td>
-                  {producto.precio.toLocaleString("es-CL", {
-                    style: "currency",
-                    currency: "CLP",
-                  })}
-                </td>
-
-                <td>{producto.stock}</td>
-
-                <td>
-                  <div className="d-flex gap-2">
-                    <button
-                      type="button"
-                      className="btn btn-warning btn-sm"
-                      onClick={() => manejarEditar(producto)}
-                    >
-                      Editar
-                    </button>
-
-                    <button
-                      type="button"
-                      className="btn btn-danger btn-sm"
-                      onClick={() => manejarEliminar(producto)}
-                    >
-                      Eliminar
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-
-            {productos.length === 0 && (
+      {cargando ? (
+        <p className="text-center">Cargando productos…</p>
+      ) : (
+        <div className="table-responsive">
+          <table className="table table-striped table-bordered align-middle">
+            <thead className="table-dark">
               <tr>
-                <td colSpan={6} className="text-center">
-                  No hay productos registrados. Agrega uno con el
-                  formulario.
-                </td>
+                <th scope="col">Imagen</th>
+                <th scope="col">Nombre</th>
+                <th scope="col">Categoría</th>
+                <th scope="col">Precio</th>
+                <th scope="col">Stock</th>
+                <th scope="col">Acciones</th>
               </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+
+            <tbody>
+              {productos.map((producto) => (
+                <tr key={producto.id}>
+                  <td>
+                    <img
+                      src={producto.imagen}
+                      alt={producto.nombre}
+                      width="70"
+                      height="70"
+                      style={{
+                        objectFit: "cover",
+                        borderRadius: "8px",
+                      }}
+                    />
+                  </td>
+
+                  <td>{producto.nombre}</td>
+                  <td>{producto.categoria}</td>
+
+                  <td>
+                    {producto.precio.toLocaleString("es-CL", {
+                      style: "currency",
+                      currency: "CLP",
+                    })}
+                  </td>
+
+                  <td>{producto.stock}</td>
+
+                  <td>
+                    <div className="d-flex gap-2">
+                      <button
+                        type="button"
+                        className="btn btn-warning btn-sm"
+                        onClick={() => manejarEditar(producto)}
+                      >
+                        Editar
+                      </button>
+
+                      <button
+                        type="button"
+                        className="btn btn-danger btn-sm"
+                        onClick={() => manejarEliminar(producto)}
+                      >
+                        Eliminar
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+
+              {productos.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="text-center">
+                    No hay productos registrados. Agrega uno con el formulario.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
     </section>
   );
 }
