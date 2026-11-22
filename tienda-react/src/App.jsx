@@ -88,10 +88,10 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/registro" element={<Registro />} />
 
-        <Route path="/admin" element={<RutaAdmin><Dashboard /></RutaAdmin>} />
-        <Route path="/admin/productos" element={<RutaAdmin><ProductosAdmin /></RutaAdmin>} />
-        <Route path="/admin/usuarios" element={<RutaAdmin><UsuariosAdmin /></RutaAdmin>} />
-        <Route path="/admin/ordenes" element={<RutaAdmin><OrdenesAdmin /></RutaAdmin>} />
+        <Route path="/admin" element={<RutaAdmin roles={["ADMIN", "VENDEDOR"]}><Dashboard /></RutaAdmin>} />
+        <Route path="/admin/productos" element={<RutaAdmin roles={["ADMIN", "VENDEDOR"]}><ProductosAdmin /></RutaAdmin>} />
+        <Route path="/admin/usuarios" element={<RutaAdmin roles={["ADMIN"]}><UsuariosAdmin /></RutaAdmin>} />
+        <Route path="/admin/ordenes" element={<RutaAdmin roles={["ADMIN", "VENDEDOR"]}><OrdenesAdmin /></RutaAdmin>} />
 
         <Route
           path="*"

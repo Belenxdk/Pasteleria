@@ -1,11 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import {
-  listarOrdenes,
-  actualizarEstadoOrden,
-  ESTADOS_ORDEN,
-} from "../../data/ordenes.js";
-import CrearOrdenPrueba from "./CrearOrdenPrueba.jsx";
+import { listarOrdenes, obtenerOrden } from "../../servicios/ordenes.js";
+import { mensajeDeError } from "../../servicios/errores.js";
 
 function formatoPrecio(valor) {
   return valor.toLocaleString("es-CL", {
@@ -15,56 +11,51 @@ function formatoPrecio(valor) {
 }
 
 function OrdenesAdmin() {
-  const [ordenes, setOrdenes] = useState(() => listarOrdenes());
-  const [idSeleccionado, setIdSeleccionado] = useState(null);
-  const [mensaje, setMensaje] = useState("");
+  const [ordenes, setOrdenes] = useState([]);
+  const [seleccionada, setSeleccionada] = useState(null);
+  const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
 
-  const seleccionada = ordenes.find(
-    (orden) => orden.id === idSeleccionado
-  );
-
-  function manejarCambioEstado(id, nuevoEstado) {
-    setMensaje("");
+  async function cargar() {
+    setCargando(true);
     setError("");
 
     try {
-      actualizarEstadoOrden(id, nuevoEstado);
-      setOrdenes(listarOrdenes());
-      setMensaje("Estado actualizado correctamente.");
-    } catch (error) {
-      setError(error.message);
+      setOrdenes(await listarOrdenes());
+    } catch (e) {
+      setError(mensajeDeError(e));
+    } finally {
+      setCargando(false);
     }
   }
 
-  function actualizarLista() {
-    setMensaje("");
+  async function verDetalle(id) {
     setError("");
 
     try {
-      setOrdenes(listarOrdenes());
-    } catch (error) {
-      setError(error.message);
+      setSeleccionada(await obtenerOrden(id));
+    } catch (e) {
+      setError(mensajeDeError(e));
     }
   }
+
+  useEffect(() => {
+    cargar();
+  }, []);
 
   return (
     <section className="container py-4">
-      <CrearOrdenPrueba />
-
       <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
         <div>
-          <h2>Administración de órdenes</h2>
-          <p className="mb-0">
-            Órdenes registradas: {ordenes.length}
-          </p>
+          <h2>Órdenes</h2>
+          <p className="mb-0">Órdenes registradas: {ordenes.length}</p>
         </div>
 
         <div className="d-flex gap-2">
           <button
             type="button"
             className="btn btn-outline-primary"
-            onClick={actualizarLista}
+            onClick={cargar}
           >
             Actualizar lista
           </button>
@@ -74,12 +65,6 @@ function OrdenesAdmin() {
           </Link>
         </div>
       </div>
-
-      {mensaje && (
-        <div className="alert alert-success" role="status">
-          {mensaje}
-        </div>
-      )}
 
       {error && (
         <div className="alert alert-danger" role="alert">
@@ -103,40 +88,16 @@ function OrdenesAdmin() {
           <tbody>
             {ordenes.map((orden) => (
               <tr key={orden.id}>
-                <td title={orden.id}>
-                  {orden.id.slice(0, 8)}
-                </td>
-
-                <td>
-                  {new Date(orden.fecha).toLocaleString("es-CL")}
-                </td>
-
+                <td title={orden.id}>{orden.id.slice(0, 8)}</td>
+                <td>{new Date(orden.fecha).toLocaleString("es-CL")}</td>
                 <td>{orden.cliente}</td>
-
                 <td>{formatoPrecio(orden.total)}</td>
-
-                <td>
-                  <select
-                    className="form-select"
-                    value={orden.estado}
-                    aria-label={`Estado de la orden ${orden.id}`}
-                    onChange={(e) =>
-                      manejarCambioEstado(orden.id, e.target.value)
-                    }
-                  >
-                    {ESTADOS_ORDEN.map((estado) => (
-                      <option key={estado} value={estado}>
-                        {estado}
-                      </option>
-                    ))}
-                  </select>
-                </td>
-
+                <td>{orden.estado}</td>
                 <td>
                   <button
                     type="button"
                     className="btn btn-primary btn-sm"
-                    onClick={() => setIdSeleccionado(orden.id)}
+                    onClick={() => verDetalle(orden.id)}
                   >
                     Ver detalle
                   </button>
@@ -144,7 +105,7 @@ function OrdenesAdmin() {
               </tr>
             ))}
 
-            {ordenes.length === 0 && (
+            {!cargando && ordenes.length === 0 && (
               <tr>
                 <td colSpan={6} className="text-center">
                   Todavía no hay órdenes registradas.
@@ -164,7 +125,7 @@ function OrdenesAdmin() {
               <button
                 type="button"
                 className="btn btn-outline-secondary btn-sm"
-                onClick={() => setIdSeleccionado(null)}
+                onClick={() => setSeleccionada(null)}
               >
                 Cerrar detalle
               </button>
@@ -173,19 +134,15 @@ function OrdenesAdmin() {
             <p className="text-break">
               <strong>Identificador:</strong> {seleccionada.id}
             </p>
-
             <p>
               <strong>Cliente:</strong> {seleccionada.cliente}
             </p>
-
             <p>
               <strong>Correo:</strong> {seleccionada.email}
             </p>
-
             <p>
               <strong>Dirección:</strong> {seleccionada.direccion}
             </p>
-
             <p>
               <strong>Estado:</strong> {seleccionada.estado}
             </p>
@@ -215,9 +172,7 @@ function OrdenesAdmin() {
             </div>
 
             <p className="fs-5 mb-0">
-              <strong>
-                Total: {formatoPrecio(seleccionada.total)}
-              </strong>
+              <strong>Total: {formatoPrecio(seleccionada.total)}</strong>
             </p>
           </div>
         </div>
