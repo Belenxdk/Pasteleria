@@ -11,12 +11,12 @@ function Login() {
   const [error, setError] = useState("");
   const [sesion, setSesion] = useState(() => obtenerSesion());
 
-  function manejarLogin(evento) {
+  async function manejarLogin(evento) {
     evento.preventDefault();
     setError("");
 
     try {
-      const usuario = iniciarSesion(email, password);
+      const usuario = await iniciarSesion(email, password);
       setSesion(usuario);
       setEmail("");
       setPassword("");

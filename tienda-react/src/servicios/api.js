@@ -5,4 +5,15 @@ const api = axios.create({
   timeout: 8000,
 });
 
+api.interceptors.request.use((config) => {
+  const guardada = sessionStorage.getItem("milsabores_sesion");
+  if (guardada) {
+    const { token } = JSON.parse(guardada);
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  }
+  return config;
+});
+
 export default api;

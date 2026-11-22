@@ -1,34 +1,34 @@
-import { listarUsuarios } from "./usuarios.js";
+import api from "../servicios/api.js";
+import { mensajeDeError } from "../servicios/errores.js";
 
 const CLAVE_SESION = "milsabores_sesion";
 
-export function iniciarSesion(email, password) {
+export async function iniciarSesion(email, password) {
   const correo = email.trim().toLowerCase();
 
   if (!correo || !password) {
     throw new Error("Completa el correo y la contraseña.");
   }
 
-  const usuario = listarUsuarios().find(
-    (usuario) =>
-      usuario.email === correo && usuario.password === password
-  );
+  try {
+    const respuesta = await api.post("/auth/login", { email: correo, password });
 
-  if (!usuario) {
-    throw new Error("Correo o contraseña incorrectos.");
+    const sesion = {
+      id: respuesta.data.email,
+      token: respuesta.data.token,
+      nombre: respuesta.data.nombre,
+      email: respuesta.data.email,
+      rol: respuesta.data.rol,
+    };
+
+    sessionStorage.setItem(CLAVE_SESION, JSON.stringify(sesion));
+    return sesion;
+  } catch (error) {
+    if (error.response?.status === 401) {
+      throw new Error("Correo o contraseña incorrectos.");
+    }
+    throw new Error(mensajeDeError(error));
   }
-
-  // Guardamos solo los datos necesarios, sin la contraseña.
-  const sesion = {
-    id: usuario.id,
-    nombre: usuario.nombre,
-    email: usuario.email,
-    rol: usuario.rol,
-  };
-
-  sessionStorage.setItem(CLAVE_SESION, JSON.stringify(sesion));
-
-  return sesion;
 }
 
 export function obtenerSesion() {
