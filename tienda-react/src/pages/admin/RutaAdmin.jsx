@@ -8,7 +8,7 @@ function RutaAdmin({ children }) {
     return <Navigate to="/login" replace />;
   }
 
-  if (sesion.rol !== "admin") {
+  if (sesion.rol !== "ADMIN") {
     return (
       <div className="container py-4">
         <div className="alert alert-danger" role="alert">
