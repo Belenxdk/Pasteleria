@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { obtenerSesion } from "../../data/auth.js";
 import {
   listarProductos,
   crearProducto,
@@ -17,6 +18,8 @@ function textoDeError(e) {
 }
 
 function ProductosAdmin() {
+  const esAdmin = obtenerSesion()?.rol === "ADMIN";
+
   const [productos, setProductos] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [guardando, setGuardando] = useState(false);
@@ -135,7 +138,7 @@ function ProductosAdmin() {
 
   return (
     <section className="container py-4">
-      <h2>Administración de productos</h2>
+      <h2>{esAdmin ? "Administración de productos" : "Productos"}</h2>
       <p>Productos registrados: {productos.length}</p>
 
       {mensaje && (
@@ -150,105 +153,107 @@ function ProductosAdmin() {
         </div>
       )}
 
-      <form onSubmit={manejarGuardar} className="card card-body mb-4">
-        <h3>{editando !== null ? "Editar producto" : "Agregar producto"}</h3>
+      {esAdmin && (
+        <form onSubmit={manejarGuardar} className="card card-body mb-4">
+          <h3>{editando !== null ? "Editar producto" : "Agregar producto"}</h3>
 
-        <div className="row g-3">
-          <div className="col-md-6">
-            <label htmlFor="nombre" className="form-label">
-              Nombre
-            </label>
-            <input
-              id="nombre"
-              type="text"
-              className="form-control"
-              value={nombre}
-              onChange={(e) => setNombre(e.target.value)}
-              required
-            />
-          </div>
+          <div className="row g-3">
+            <div className="col-md-6">
+              <label htmlFor="nombre" className="form-label">
+                Nombre
+              </label>
+              <input
+                id="nombre"
+                type="text"
+                className="form-control"
+                value={nombre}
+                onChange={(e) => setNombre(e.target.value)}
+                required
+              />
+            </div>
 
-          <div className="col-md-6">
-            <label htmlFor="categoria" className="form-label">
-              Categoría
-            </label>
-            <select
-              id="categoria"
-              className="form-select"
-              value={categoria}
-              onChange={(e) => setCategoria(e.target.value)}
-              required
-            >
-              <option value="Tortas">Tortas</option>
-              <option value="Pastelería Individual">Pastelería Individual</option>
-              <option value="Sin Azúcar">Sin Azúcar</option>
-            </select>
-          </div>
+            <div className="col-md-6">
+              <label htmlFor="categoria" className="form-label">
+                Categoría
+              </label>
+              <select
+                id="categoria"
+                className="form-select"
+                value={categoria}
+                onChange={(e) => setCategoria(e.target.value)}
+                required
+              >
+                <option value="Tortas">Tortas</option>
+                <option value="Pastelería Individual">Pastelería Individual</option>
+                <option value="Sin Azúcar">Sin Azúcar</option>
+              </select>
+            </div>
 
-          <div className="col-md-6">
-            <label htmlFor="precio" className="form-label">
-              Precio en pesos
-            </label>
-            <input
-              id="precio"
-              type="number"
-              min="1"
-              step="1"
-              className="form-control"
-              value={precio}
-              onChange={(e) => setPrecio(e.target.value)}
-              required
-            />
-          </div>
+            <div className="col-md-6">
+              <label htmlFor="precio" className="form-label">
+                Precio en pesos
+              </label>
+              <input
+                id="precio"
+                type="number"
+                min="1"
+                step="1"
+                className="form-control"
+                value={precio}
+                onChange={(e) => setPrecio(e.target.value)}
+                required
+              />
+            </div>
 
-          <div className="col-md-6">
-            <label htmlFor="stock" className="form-label">
-              Stock
-            </label>
-            <input
-              id="stock"
-              type="number"
-              min="0"
-              step="1"
-              className="form-control"
-              value={stock}
-              onChange={(e) => setStock(e.target.value)}
-              required
-            />
-          </div>
+            <div className="col-md-6">
+              <label htmlFor="stock" className="form-label">
+                Stock
+              </label>
+              <input
+                id="stock"
+                type="number"
+                min="0"
+                step="1"
+                className="form-control"
+                value={stock}
+                onChange={(e) => setStock(e.target.value)}
+                required
+              />
+            </div>
 
-          <div className="col-12">
-            <label htmlFor="imagen" className="form-label">
-              Ruta de la imagen
-            </label>
-            <input
-              id="imagen"
-              type="text"
-              className="form-control"
-              value={imagen}
-              onChange={(e) => setImagen(e.target.value)}
-              placeholder="/img/productos/tortaChocolate.jpg"
-              required
-            />
-          </div>
+            <div className="col-12">
+              <label htmlFor="imagen" className="form-label">
+                Ruta de la imagen
+              </label>
+              <input
+                id="imagen"
+                type="text"
+                className="form-control"
+                value={imagen}
+                onChange={(e) => setImagen(e.target.value)}
+                placeholder="/img/productos/tortaChocolate.jpg"
+                required
+              />
+            </div>
 
-          <div className="col-12">
-            <button type="submit" className="btn btn-success me-2" disabled={guardando}>
-              {guardando
-                ? "Guardando…"
-                : editando !== null
-                ? "Guardar cambios"
-                : "Crear producto"}
-            </button>
-
-            {editando !== null && (
-              <button type="button" className="btn btn-secondary" onClick={cancelarEdicion}>
-                Cancelar edición
+            <div className="col-12">
+              <button type="submit" className="btn btn-success me-2" disabled={guardando}>
+                {guardando
+                  ? "Guardando…"
+                  : editando !== null
+                  ? "Guardar cambios"
+                  : "Crear producto"}
               </button>
-            )}
+
+              {editando !== null && (
+                <button type="button" className="btn btn-secondary" onClick={cancelarEdicion}>
+                  Cancelar edición
+                </button>
+              )}
+            </div>
           </div>
-        </div>
-      </form>
+        </form>
+      )}
 
       {cargando ? (
         <p className="text-center">Cargando productos…</p>
@@ -262,7 +267,7 @@ function ProductosAdmin() {
                 <th scope="col">Categoría</th>
                 <th scope="col">Precio</th>
                 <th scope="col">Stock</th>
-                <th scope="col">Acciones</th>
+                {esAdmin && <th scope="col">Acciones</th>}
               </tr>
             </thead>
 
@@ -294,32 +299,34 @@ function ProductosAdmin() {
 
                   <td>{producto.stock}</td>
 
-                  <td>
-                    <div className="d-flex gap-2">
-                      <button
-                        type="button"
-                        className="btn btn-warning btn-sm"
-                        onClick={() => manejarEditar(producto)}
-                      >
-                        Editar
-                      </button>
+                  {esAdmin && (
+                    <td>
+                      <div className="d-flex gap-2">
+                        <button
+                          type="button"
+                          className="btn btn-warning btn-sm"
+                          onClick={() => manejarEditar(producto)}
+                        >
+                          Editar
+                        </button>
 
-                      <button
-                        type="button"
-                        className="btn btn-danger btn-sm"
-                        onClick={() => manejarEliminar(producto)}
-                      >
-                        Eliminar
-                      </button>
-                    </div>
-                  </td>
+                        <button
+                          type="button"
+                          className="btn btn-danger btn-sm"
+                          onClick={() => manejarEliminar(producto)}
+                        >
+                          Eliminar
+                        </button>
+                      </div>
+                    </td>
+                  )}
                 </tr>
               ))}
 
               {productos.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="text-center">
-                    No hay productos registrados. Agrega uno con el formulario.
+                  <td colSpan={esAdmin ? 6 : 5} className="text-center">
+                    No hay productos registrados.
                   </td>
                 </tr>
               )}
