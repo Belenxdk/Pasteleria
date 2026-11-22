@@ -22,6 +22,10 @@ public class ManejadorErrores {
     public ResponseEntity<ErrorApi> sinStock(StockInsuficienteException ex) {
         return responder(HttpStatus.CONFLICT, ex.getMessage(), Map.of());
     }
+    @ExceptionHandler(CredencialesInvalidasException.class)
+    public ResponseEntity<ErrorApi> credenciales(CredencialesInvalidasException ex) {
+        return responder(HttpStatus.UNAUTHORIZED, ex.getMessage(), Map.of());
+    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorApi> datosInvalidos(MethodArgumentNotValidException ex) {
