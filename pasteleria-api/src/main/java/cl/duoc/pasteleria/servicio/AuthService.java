@@ -7,6 +7,7 @@ import cl.duoc.pasteleria.modelo.Usuario;
 import cl.duoc.pasteleria.repositorio.UsuarioRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import io.jsonwebtoken.JwtException;
 
 @Service
 public class AuthService {
@@ -28,5 +29,23 @@ public class AuthService {
 
         String token = jwt.generar(usuario);
         return new LoginResponse(token, usuario.getNombre(), usuario.getEmail(), usuario.getRol().name());
+    }
+    public LoginResponse renovar(String cabecera) {
+        if (cabecera == null || !cabecera.startsWith("Bearer ")) {
+            throw new CredencialesInvalidasException();
+        }
+
+        String correo;
+        try {
+            correo = jwt.leer(cabecera.substring(7)).getSubject();
+        } catch (JwtException | IllegalArgumentException e) {
+            throw new CredencialesInvalidasException();
+        }
+
+        Usuario usuario = usuarios.findByEmail(correo)
+                .orElseThrow(CredencialesInvalidasException::new);
+
+        return new LoginResponse(jwt.generar(usuario), usuario.getNombre(),
+                usuario.getEmail(), usuario.getRol().name());
     }
 }

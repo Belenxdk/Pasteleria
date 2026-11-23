@@ -22,6 +22,7 @@ export async function iniciarSesion(email, password) {
     };
 
     sessionStorage.setItem(CLAVE_SESION, JSON.stringify(sesion));
+    window.dispatchEvent(new Event("sesion-cambiada"));
     return sesion;
   } catch (error) {
     if (error.response?.status === 401) {
@@ -38,4 +39,5 @@ export function obtenerSesion() {
 
 export function cerrarSesion() {
   sessionStorage.removeItem(CLAVE_SESION);
+  window.dispatchEvent(new Event("sesion-cambiada"));
 }

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Alert, Button, Container, Table } from 'react-bootstrap'
+import { Alert, Button, Container, Form, Table } from 'react-bootstrap'
 import { obtenerSesion } from '../../data/auth.js'
 import { enviarOrden } from '../../servicios/ordenes.js'
 import { mensajeDeError } from '../../servicios/errores.js'
@@ -10,16 +10,14 @@ import { formatearPrecio } from '../../utils/formato.js'
 function Checkout({ carrito, total, onVaciar }) {
     const navigate = useNavigate()
     const sesion = obtenerSesion()
+    const [direccion, setDireccion] = useState('')
     const [enviando, setEnviando] = useState(false)
 
     async function confirmarCompra() {
         setEnviando(true)
         try {
             const orden = await enviarOrden({
-                usuarioId: sesion.id,
-                cliente: `${sesion.nombre} ${sesion.apellidos ?? ''}`.trim(),
-                email: sesion.email,
-                direccion: sesion.direccion ?? '',
+                direccion: direccion.trim(),
                 items: armarItemsOrden(carrito),
             })
             onVaciar()
@@ -82,9 +80,24 @@ function Checkout({ carrito, total, onVaciar }) {
                 </tfoot>
             </Table>
 
+            <Form.Group className="mb-3" controlId="direccion-entrega">
+                <Form.Label>Dirección de entrega</Form.Label>
+                <Form.Control
+                    type="text"
+                    value={direccion}
+                    onChange={(e) => setDireccion(e.target.value)}
+                    placeholder="Calle, número y comuna"
+                    maxLength={150}
+                />
+            </Form.Group>
+
             <div className="d-flex justify-content-center gap-2">
                 <Button as={Link} to="/carrito" className="btn-agregar">Volver al carrito</Button>
-                <Button className="btn-primario" onClick={confirmarCompra} disabled={enviando}>
+                <Button
+                    className="btn-primario"
+                    onClick={confirmarCompra}
+                    disabled={enviando || direccion.trim() === ''}
+                >
                     {enviando ? 'Enviando…' : 'Confirmar compra'}
                 </Button>
             </div>

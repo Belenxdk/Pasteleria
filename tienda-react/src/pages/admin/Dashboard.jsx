@@ -11,6 +11,7 @@ function Dashboard() {
   const [error, setError] = useState("");
   const usuarios = listarUsuarios();
   const sesion = obtenerSesion();
+  const esAdmin = sesion?.rol === "ADMIN";
 
   useEffect(() => {
     let ignorar = false;
@@ -59,17 +60,19 @@ function Dashboard() {
           </div>
         </div>
 
-        <div className="col-12 col-md-4">
-          <div className="card h-100 shadow-sm">
-            <div className="card-body">
-              <h3 className="h5">Usuarios registrados</h3>
-              <p className="display-6 mb-0">{usuarios.length}</p>
-              <small className="text-muted">
-                Incluye la cuenta administradora.
-              </small>
+        {esAdmin && (
+          <div className="col-12 col-md-4">
+            <div className="card h-100 shadow-sm">
+              <div className="card-body">
+                <h3 className="h5">Usuarios registrados</h3>
+                <p className="display-6 mb-0">{usuarios.length}</p>
+                <small className="text-muted">
+                  Incluye la cuenta administradora.
+                </small>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         <div className="col-12 col-md-4">
           <div className="card h-100 shadow-sm">
@@ -84,15 +87,17 @@ function Dashboard() {
       </div>
 
       <Link to="/admin/productos" className="btn btn-success">
-        Administrar productos
+        {esAdmin ? "Administrar productos" : "Ver productos"}
       </Link>
 
-      <Link to="/admin/usuarios" className="btn btn-primary ms-2">
-        Administrar usuarios
-      </Link>
+      {esAdmin && (
+        <Link to="/admin/usuarios" className="btn btn-primary ms-2">
+          Administrar usuarios
+        </Link>
+      )}
 
       <Link to="/admin/ordenes" className="btn btn-outline-primary ms-2">
-        Administrar órdenes
+        {esAdmin ? "Administrar órdenes" : "Ver órdenes"}
       </Link>
     </section>
   );
