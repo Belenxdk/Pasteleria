@@ -7,33 +7,41 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import cl.duoc.pasteleria.dto.LineaPedido;
 import cl.duoc.pasteleria.dto.PedidoRequest;
+import cl.duoc.pasteleria.error.CredencialesInvalidasException;
 import cl.duoc.pasteleria.error.RecursoNoEncontradoException;
 import cl.duoc.pasteleria.error.StockInsuficienteException;
 import cl.duoc.pasteleria.modelo.ItemOrden;
 import cl.duoc.pasteleria.modelo.Orden;
 import cl.duoc.pasteleria.modelo.Producto;
+import cl.duoc.pasteleria.modelo.Usuario;
 import cl.duoc.pasteleria.repositorio.OrdenRepository;
 import cl.duoc.pasteleria.repositorio.ProductoRepository;
-import org.springframework.data.domain.Sort;
+import cl.duoc.pasteleria.repositorio.UsuarioRepository;
 
 @Service
 public class OrdenService {
 
     private final ProductoRepository productos;
     private final OrdenRepository ordenes;
+    private final UsuarioRepository usuarios;
 
-    public OrdenService(ProductoRepository productos, OrdenRepository ordenes) {
+    public OrdenService(ProductoRepository productos, OrdenRepository ordenes, UsuarioRepository usuarios) {
         this.productos = productos;
         this.ordenes = ordenes;
+        this.usuarios = usuarios;
     }
 
     @Transactional
-    public Orden crear(PedidoRequest solicitud) {
+    public Orden crear(String emailComprador, PedidoRequest solicitud) {
+        Usuario comprador = usuarios.findByEmail(emailComprador)
+                .orElseThrow(CredencialesInvalidasException::new);
+
         Map<String, Integer> cantidades = new LinkedHashMap<>();
         for (LineaPedido linea : solicitud.items()) {
             cantidades.merge(linea.productoId(), linea.cantidad(), Integer::sum);
@@ -65,9 +73,9 @@ public class OrdenService {
 
         Orden orden = new Orden();
         orden.setId(UUID.randomUUID().toString());
-        orden.setUsuarioId(solicitud.usuarioId());
-        orden.setCliente(solicitud.cliente());
-        orden.setEmail(solicitud.email());
+        orden.setUsuarioId(comprador.getEmail());
+        orden.setCliente(comprador.getNombre());
+        orden.setEmail(comprador.getEmail());
         orden.setDireccion(solicitud.direccion());
         orden.setItems(detalle);
         orden.setTotal(total);
@@ -76,6 +84,7 @@ public class OrdenService {
 
         return ordenes.save(orden);
     }
+
     public List<Orden> listar() {
         return ordenes.findAll(Sort.by(Sort.Direction.DESC, "fecha"));
     }

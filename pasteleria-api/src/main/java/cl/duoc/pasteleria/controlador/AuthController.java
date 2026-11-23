@@ -5,10 +5,7 @@ import cl.duoc.pasteleria.dto.LoginRequest;
 import cl.duoc.pasteleria.dto.LoginResponse;
 import cl.duoc.pasteleria.servicio.AuthService;
 import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -22,5 +19,10 @@ public class AuthController {
     @PostMapping("/login")
     public LoginResponse login(@Valid @RequestBody LoginRequest solicitud){
         return servicio.login(solicitud);
+    }
+
+    @PostMapping("/renovar")
+    public LoginResponse renovar(@RequestHeader(value = "Authorization", required = false) String cabecera) {
+        return servicio.renovar(cabecera);
     }
 }
