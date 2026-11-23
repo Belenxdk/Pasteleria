@@ -1,152 +1,178 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { obtenerSesion } from "../../data/auth.js";
 import {
   listarUsuarios,
-  registrarUsuario,
+  crearUsuario,
   actualizarUsuario,
   eliminarUsuario,
-  validarRegistro,
-} from "../../data/usuarios.js";
+} from "../../servicios/usuarios.js";
+import { mensajeDeError } from "../../servicios/errores.js";
+import { validarRun } from "../../data/usuarios.js";
 
-const formularioInicial = {
+const formularioVacio = {
   run: "",
   nombre: "",
   apellidos: "",
-  email: "",
   direccion: "",
+  email: "",
   password: "",
-  confirmarPassword: "",
+  rol: "CLIENTE",
 };
 
-const campos = [
-  { nombre: "run", etiqueta: "RUN sin puntos ni guion", tipo: "text" },
-  { nombre: "nombre", etiqueta: "Nombre", tipo: "text" },
-  { nombre: "apellidos", etiqueta: "Apellidos", tipo: "text" },
-  { nombre: "email", etiqueta: "Correo electrónico", tipo: "email" },
-  { nombre: "direccion", etiqueta: "Dirección", tipo: "text" },
-  { nombre: "password", etiqueta: "Contraseña", tipo: "password" },
-  {
-    nombre: "confirmarPassword",
-    etiqueta: "Confirmar contraseña",
-    tipo: "password",
-  },
-];
+const nombreRol = {
+  ADMIN: "Administrador",
+  VENDEDOR: "Vendedor",
+  CLIENTE: "Cliente",
+};
+
+function explicarError(error) {
+  const mensaje = mensajeDeError(error);
+  const campos = error.response?.data?.campos;
+  return campos && Object.keys(campos).length
+    ? `${mensaje}: ${Object.values(campos).join(". ")}`
+    : mensaje;
+}
 
 function UsuariosAdmin() {
-  const [usuarios, setUsuarios] = useState(() => listarUsuarios());
-  const [formulario, setFormulario] = useState({ ...formularioInicial });
+  const [usuarios, setUsuarios] = useState([]);
+  const [formulario, setFormulario] = useState({ ...formularioVacio });
   const [idEditando, setIdEditando] = useState(null);
-  const [errores, setErrores] = useState({});
+  const [cargando, setCargando] = useState(true);
+  const [guardando, setGuardando] = useState(false);
+  const [eliminando, setEliminando] = useState(null);
   const [mensaje, setMensaje] = useState("");
-  const [errorGeneral, setErrorGeneral] = useState("");
+  const [error, setError] = useState("");
+
+  const emailActual = obtenerSesion()?.email;
+
+  useEffect(() => {
+    let activo = true;
+
+    async function cargar() {
+      try {
+        const lista = await listarUsuarios();
+        if (activo) setUsuarios(lista);
+      } catch (e) {
+        if (activo) setError(explicarError(e));
+      } finally {
+        if (activo) setCargando(false);
+      }
+    }
+
+    cargar();
+    return () => { activo = false; };
+  }, []);
+
+  async function recargar() {
+    const lista = await listarUsuarios();
+    setUsuarios(lista);
+  }
 
   function limpiarFormulario() {
-    setFormulario({ ...formularioInicial });
+    setFormulario({ ...formularioVacio });
     setIdEditando(null);
-    setErrores({});
   }
 
   function manejarCambio(evento) {
     const { name, value } = evento.target;
-
-    setFormulario((actual) => ({
-      ...actual,
-      [name]: value,
-    }));
-
-    setErrores((actuales) => ({
-      ...actuales,
-      [name]: "",
-    }));
-
+    setFormulario((actual) => ({ ...actual, [name]: value }));
     setMensaje("");
-    setErrorGeneral("");
+    setError("");
   }
 
   function manejarEditar(usuario) {
     setIdEditando(usuario.id);
     setFormulario({
-      run: usuario.run,
+      run: usuario.run ?? "",
       nombre: usuario.nombre,
-      apellidos: usuario.apellidos,
+      apellidos: usuario.apellidos ?? "",
+      direccion: usuario.direccion ?? "",
       email: usuario.email,
-      direccion: usuario.direccion,
       password: "",
-      confirmarPassword: "",
+      rol: usuario.rol,
     });
-    setErrores({});
     setMensaje("");
-    setErrorGeneral("");
+    setError("");
   }
 
-  function cancelarEdicion() {
-    limpiarFormulario();
-    setMensaje("");
-    setErrorGeneral("");
-  }
-
-  function manejarGuardar(evento) {
+  async function manejarGuardar(evento) {
     evento.preventDefault();
     setMensaje("");
-    setErrorGeneral("");
+    setError("");
 
-    const nuevosErrores = validarRegistro(formulario);
+    const nombre = formulario.nombre.trim();
+    const email = formulario.email.trim().toLowerCase();
+    const password = formulario.password;
 
-    // Al editar, ambos campos vacíos conservan la contraseña.
-    const conservarPassword =
-      idEditando !== null &&
-      formulario.password === "" &&
-      formulario.confirmarPassword === "";
-
-    if (conservarPassword) {
-      delete nuevosErrores.password;
-      delete nuevosErrores.confirmarPassword;
+    if (!nombre || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError("Ingresa un nombre y un correo válido.");
+      return;
+    }
+    if ((idEditando === null || password !== "") && password.length < 6) {
+      setError("La contraseña debe tener al menos 6 caracteres.");
+      return;
     }
 
-    setErrores(nuevosErrores);
+    if (idEditando === null && !validarRun(formulario.run)) {
+      setError("Ingresa un RUN válido, sin puntos ni guion.");
+      return;
+    }
+    if (idEditando !== null && formulario.run.trim() && !validarRun(formulario.run)) {
+      setError("RUN inválido.");
+      return;
+    }
+    if (idEditando === null && (!formulario.apellidos.trim() || !formulario.direccion.trim())) {
+      setError("Completa los apellidos y la dirección.");
+      return;
+    }
+    const datos = {
+      nombre, email, rol: formulario.rol,
+      ...(formulario.run.trim() ? { run: formulario.run.trim().toUpperCase() } : {}),
+      ...(formulario.apellidos.trim() ? { apellidos: formulario.apellidos.trim() } : {}),
+      ...(formulario.direccion.trim() ? { direccion: formulario.direccion.trim() } : {}),
+    };
+    // Al editar, no enviamos la contraseña si se deja vacía.
+    if (password) datos.password = password;
 
-    if (Object.keys(nuevosErrores).length > 0) return;
-
+    setGuardando(true);
     try {
-      if (idEditando !== null) {
-        actualizarUsuario(idEditando, formulario);
+      if (idEditando === null) {
+        await crearUsuario(datos);
       } else {
-        registrarUsuario(formulario);
+        await actualizarUsuario(idEditando, datos);
       }
-
-      setUsuarios(listarUsuarios());
-      setMensaje(
-        idEditando !== null
-          ? "Usuario actualizado correctamente."
-          : "Usuario creado correctamente."
-      );
+      await recargar();
+      setMensaje(idEditando === null
+        ? "Usuario creado correctamente."
+        : "Usuario actualizado correctamente.");
       limpiarFormulario();
-    } catch (error) {
-      setErrorGeneral(error.message);
+    } catch (e) {
+      setError(explicarError(e));
+    } finally {
+      setGuardando(false);
     }
   }
 
-  function manejarEliminar(usuario) {
-    const confirmar = window.confirm(
-      `¿Quieres eliminar la cuenta de ${usuario.nombre}?`
-    );
-
-    if (!confirmar) return;
+  async function manejarEliminar(usuario) {
+    if (usuario.email.toLowerCase() === emailActual?.toLowerCase()) {
+      setError("No puedes eliminar tu propia cuenta.");
+      return;
+    }
+    if (!window.confirm(`¿Quieres eliminar la cuenta de ${usuario.nombre}?`)) return;
 
     setMensaje("");
-    setErrorGeneral("");
-
+    setError("");
+    setEliminando(usuario.id);
     try {
-      eliminarUsuario(usuario.id);
-
-      if (idEditando === usuario.id) {
-        limpiarFormulario();
-      }
-
-      setUsuarios(listarUsuarios());
+      await eliminarUsuario(usuario.id);
+      await recargar();
+      if (idEditando === usuario.id) limpiarFormulario();
       setMensaje("Usuario eliminado correctamente.");
-    } catch (error) {
-      setErrorGeneral(error.message);
+    } catch (e) {
+      setError(explicarError(e));
+    } finally {
+      setEliminando(null);
     }
   }
 
@@ -155,188 +181,114 @@ function UsuariosAdmin() {
       <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
         <div>
           <h2>Administración de usuarios</h2>
-          <p className="mb-0">
-            Usuarios registrados: {usuarios.length}
-          </p>
+          <p className="mb-0">Usuarios registrados: {usuarios.length}</p>
         </div>
-
-        <Link to="/admin" className="btn btn-outline-secondary">
-          Volver al panel
-        </Link>
+        <Link to="/admin" className="btn btn-outline-secondary">Volver al panel</Link>
       </div>
 
-      {mensaje && (
-        <div className="alert alert-success" role="status">
-          {mensaje}
-        </div>
-      )}
+      {mensaje && <div className="alert alert-success" role="status">{mensaje}</div>}
+      {error && <div className="alert alert-danger" role="alert">{error}</div>}
 
-      {errorGeneral && (
-        <div className="alert alert-danger" role="alert">
-          {errorGeneral}
-        </div>
-      )}
-
-      <form
-        onSubmit={manejarGuardar}
-        className="card card-body mb-4"
-        noValidate
-      >
-        <h3>
-          {idEditando !== null ? "Editar cliente" : "Crear cliente"}
-        </h3>
-
+      <form className="card card-body mb-4" onSubmit={manejarGuardar}>
+        <h3>{idEditando === null ? "Crear usuario" : "Editar usuario"}</h3>
         {idEditando !== null && (
-          <p className="text-muted">
-            Deja los dos campos de contraseña vacíos para conservar
-            la actual.
-          </p>
+          <p className="text-muted">Deja la contraseña vacía para conservar la actual.</p>
         )}
 
         <div className="row g-3">
-          {campos.map((campo) => (
-            <div className="col-12 col-md-6" key={campo.nombre}>
-              <label
-                htmlFor={`usuario-${campo.nombre}`}
-                className="form-label"
-              >
-                {campo.etiqueta}
-              </label>
-
-              <input
-                id={`usuario-${campo.nombre}`}
-                name={campo.nombre}
-                type={campo.tipo}
-                className={`form-control ${
-                  errores[campo.nombre] ? "is-invalid" : ""
-                }`}
-                value={formulario[campo.nombre]}
-                onChange={manejarCambio}
-                autoComplete={
-                  campo.tipo === "password" ? "new-password" : "off"
-                }
-                aria-invalid={Boolean(errores[campo.nombre])}
-                aria-describedby={
-                  errores[campo.nombre]
-                    ? `usuario-error-${campo.nombre}`
-                    : undefined
-                }
-                required={
-                  campo.tipo !== "password" || idEditando === null
-                }
-              />
-
-              {errores[campo.nombre] && (
-                <div
-                  id={`usuario-error-${campo.nombre}`}
-                  className="invalid-feedback"
-                >
-                  {errores[campo.nombre]}
-                </div>
-              )}
-            </div>
-          ))}
-
-          <div className="col-12">
-            <button
-              type="submit"
-              className="btn btn-success me-2"
-            >
-              {idEditando !== null
-                ? "Guardar cambios"
-                : "Crear cliente"}
-            </button>
-
-            {idEditando !== null && (
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={cancelarEdicion}
-              >
-                Cancelar edición
-              </button>
-            )}
+          <div className="col-12 col-md-6">
+            <label className="form-label" htmlFor="usuario-run">RUN sin puntos ni guion</label>
+            <input id="usuario-run" name="run" className="form-control" maxLength={9}
+              value={formulario.run} onChange={manejarCambio} required={idEditando === null} />
           </div>
+          <div className="col-12 col-md-6">
+            <label className="form-label" htmlFor="usuario-apellidos">Apellidos</label>
+            <input id="usuario-apellidos" name="apellidos" className="form-control" maxLength={100}
+              value={formulario.apellidos} onChange={manejarCambio} required={idEditando === null} />
+          </div>
+          <div className="col-12 col-md-6">
+            <label className="form-label" htmlFor="usuario-direccion">Dirección</label>
+            <input id="usuario-direccion" name="direccion" className="form-control" maxLength={300}
+              value={formulario.direccion} onChange={manejarCambio} required={idEditando === null} />
+          </div>
+          <div className="col-12 col-md-6">
+            <label className="form-label" htmlFor="usuario-nombre">Nombre</label>
+            <input id="usuario-nombre" name="nombre" className="form-control"
+              value={formulario.nombre} onChange={manejarCambio} maxLength={100} required />
+          </div>
+          <div className="col-12 col-md-6">
+            <label className="form-label" htmlFor="usuario-email">Correo electrónico</label>
+            <input id="usuario-email" name="email" className="form-control" type="email"
+              value={formulario.email} onChange={manejarCambio} maxLength={100} required />
+          </div>
+          <div className="col-12 col-md-6">
+            <label className="form-label" htmlFor="usuario-password">Contraseña</label>
+            <input id="usuario-password" name="password" className="form-control" type="password"
+              value={formulario.password} onChange={manejarCambio}
+              minLength={idEditando === null ? 6 : undefined}
+              required={idEditando === null} autoComplete="new-password" />
+          </div>
+          <div className="col-12 col-md-6">
+            <label className="form-label" htmlFor="usuario-rol">Rol</label>
+            <select id="usuario-rol" name="rol" className="form-select"
+              value={formulario.rol} onChange={manejarCambio}>
+              <option value="CLIENTE">Cliente</option>
+              <option value="VENDEDOR">Vendedor</option>
+              <option value="ADMIN">Administrador</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="mt-3 d-flex gap-2">
+          <button className="btn btn-success" type="submit" disabled={guardando}>
+            {guardando ? "Guardando..." : idEditando === null ? "Crear usuario" : "Guardar cambios"}
+          </button>
+          {idEditando !== null && (
+            <button type="button" className="btn btn-secondary" onClick={limpiarFormulario}>
+              Cancelar edición
+            </button>
+          )}
         </div>
       </form>
 
-      <div className="table-responsive">
-        <table className="table table-striped table-bordered align-middle">
-          <thead className="table-dark">
-            <tr>
-              <th scope="col">RUN</th>
-              <th scope="col">Nombre</th>
-              <th scope="col">Correo</th>
-              <th scope="col">Dirección</th>
-              <th scope="col">Rol</th>
-              <th scope="col">Acciones</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {usuarios.map((usuario) => (
-              <tr key={usuario.id}>
-                <td>{usuario.run || "Sin RUN"}</td>
-
-                <td>
-                  {usuario.nombre} {usuario.apellidos}
-                </td>
-
-                <td>{usuario.email}</td>
-                <td>{usuario.direccion}</td>
-
-                <td>
-                  <span
-                    className={
-                      usuario.rol === "admin"
-                        ? "badge bg-dark"
-                        : "badge bg-success"
-                    }
-                  >
-                    {usuario.rol === "admin"
-                      ? "Administrador"
-                      : "Cliente"}
-                  </span>
-                </td>
-
-                <td>
-                  {usuario.rol === "admin" ? (
-                    <span className="text-muted">
-                      Cuenta de demo protegida
-                    </span>
-                  ) : (
-                    <div className="d-flex gap-2">
-                      <button
-                        type="button"
-                        className="btn btn-warning btn-sm"
-                        onClick={() => manejarEditar(usuario)}
-                      >
-                        Editar
-                      </button>
-
-                      <button
-                        type="button"
-                        className="btn btn-danger btn-sm"
+      {cargando ? <p>Cargando usuarios...</p> : (
+        <div className="table-responsive">
+          <table className="table table-striped table-bordered align-middle">
+            <thead className="table-dark">
+              <tr>
+                <th>ID</th><th>RUN</th><th>Nombre</th><th>Apellidos</th><th>Correo</th><th>Dirección</th><th>Rol</th><th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {usuarios.map((usuario) => (
+                <tr key={usuario.id}>
+                  <td>{usuario.id}</td>
+                  <td>{usuario.run ?? "—"}</td>
+                  <td>{usuario.nombre}</td>
+                  <td>{usuario.apellidos ?? "—"}</td>
+                  <td>{usuario.email}</td>
+                  <td>{usuario.direccion ?? "—"}</td>
+                  <td>{nombreRol[usuario.rol] ?? usuario.rol}</td>
+                  <td>
+                    <div className="d-flex flex-wrap gap-2">
+                      <button type="button" className="btn btn-warning btn-sm"
+                        onClick={() => manejarEditar(usuario)}>Editar</button>
+                      <button type="button" className="btn btn-danger btn-sm"
                         onClick={() => manejarEliminar(usuario)}
-                      >
-                        Eliminar
+                        disabled={eliminando !== null || usuario.rol === "ADMIN" || usuario.email.toLowerCase() === emailActual?.toLowerCase()}>
+                        {eliminando === usuario.id ? "Eliminando..." : "Eliminar"}
                       </button>
                     </div>
-                  )}
-                </td>
-              </tr>
-            ))}
-
-            {usuarios.length === 0 && (
-              <tr>
-                <td colSpan={6} className="text-center">
-                  No hay usuarios registrados.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+                  </td>
+                </tr>
+              ))}
+              {usuarios.length === 0 && (
+                <tr><td colSpan={8} className="text-center">No hay usuarios registrados.</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
     </section>
   );
 }
