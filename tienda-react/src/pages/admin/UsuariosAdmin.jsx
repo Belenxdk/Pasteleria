@@ -8,9 +8,13 @@ import {
   eliminarUsuario,
 } from "../../servicios/usuarios.js";
 import { mensajeDeError } from "../../servicios/errores.js";
+import { validarRun } from "../../data/usuarios.js";
 
 const formularioVacio = {
+  run: "",
   nombre: "",
+  apellidos: "",
+  direccion: "",
   email: "",
   password: "",
   rol: "CLIENTE",
@@ -80,7 +84,10 @@ function UsuariosAdmin() {
   function manejarEditar(usuario) {
     setIdEditando(usuario.id);
     setFormulario({
+      run: usuario.run ?? "",
       nombre: usuario.nombre,
+      apellidos: usuario.apellidos ?? "",
+      direccion: usuario.direccion ?? "",
       email: usuario.email,
       password: "",
       rol: usuario.rol,
@@ -107,7 +114,24 @@ function UsuariosAdmin() {
       return;
     }
 
-    const datos = { nombre, email, rol: formulario.rol };
+    if (idEditando === null && !validarRun(formulario.run)) {
+      setError("Ingresa un RUN válido, sin puntos ni guion.");
+      return;
+    }
+    if (idEditando !== null && formulario.run.trim() && !validarRun(formulario.run)) {
+      setError("RUN inválido.");
+      return;
+    }
+    if (idEditando === null && (!formulario.apellidos.trim() || !formulario.direccion.trim())) {
+      setError("Completa los apellidos y la dirección.");
+      return;
+    }
+    const datos = {
+      nombre, email, rol: formulario.rol,
+      ...(formulario.run.trim() ? { run: formulario.run.trim().toUpperCase() } : {}),
+      ...(formulario.apellidos.trim() ? { apellidos: formulario.apellidos.trim() } : {}),
+      ...(formulario.direccion.trim() ? { direccion: formulario.direccion.trim() } : {}),
+    };
     // Al editar, no enviamos la contraseña si se deja vacía.
     if (password) datos.password = password;
 
@@ -173,6 +197,21 @@ function UsuariosAdmin() {
 
         <div className="row g-3">
           <div className="col-12 col-md-6">
+            <label className="form-label" htmlFor="usuario-run">RUN sin puntos ni guion</label>
+            <input id="usuario-run" name="run" className="form-control" maxLength={9}
+              value={formulario.run} onChange={manejarCambio} required={idEditando === null} />
+          </div>
+          <div className="col-12 col-md-6">
+            <label className="form-label" htmlFor="usuario-apellidos">Apellidos</label>
+            <input id="usuario-apellidos" name="apellidos" className="form-control" maxLength={100}
+              value={formulario.apellidos} onChange={manejarCambio} required={idEditando === null} />
+          </div>
+          <div className="col-12 col-md-6">
+            <label className="form-label" htmlFor="usuario-direccion">Dirección</label>
+            <input id="usuario-direccion" name="direccion" className="form-control" maxLength={300}
+              value={formulario.direccion} onChange={manejarCambio} required={idEditando === null} />
+          </div>
+          <div className="col-12 col-md-6">
             <label className="form-label" htmlFor="usuario-nombre">Nombre</label>
             <input id="usuario-nombre" name="nombre" className="form-control"
               value={formulario.nombre} onChange={manejarCambio} maxLength={100} required />
@@ -217,15 +256,18 @@ function UsuariosAdmin() {
           <table className="table table-striped table-bordered align-middle">
             <thead className="table-dark">
               <tr>
-                <th>ID</th><th>Nombre</th><th>Correo</th><th>Rol</th><th>Acciones</th>
+                <th>ID</th><th>RUN</th><th>Nombre</th><th>Apellidos</th><th>Correo</th><th>Dirección</th><th>Rol</th><th>Acciones</th>
               </tr>
             </thead>
             <tbody>
               {usuarios.map((usuario) => (
                 <tr key={usuario.id}>
                   <td>{usuario.id}</td>
+                  <td>{usuario.run ?? "—"}</td>
                   <td>{usuario.nombre}</td>
+                  <td>{usuario.apellidos ?? "—"}</td>
                   <td>{usuario.email}</td>
+                  <td>{usuario.direccion ?? "—"}</td>
                   <td>{nombreRol[usuario.rol] ?? usuario.rol}</td>
                   <td>
                     <div className="d-flex flex-wrap gap-2">
@@ -233,7 +275,7 @@ function UsuariosAdmin() {
                         onClick={() => manejarEditar(usuario)}>Editar</button>
                       <button type="button" className="btn btn-danger btn-sm"
                         onClick={() => manejarEliminar(usuario)}
-                        disabled={eliminando !== null || usuario.email.toLowerCase() === emailActual?.toLowerCase()}>
+                        disabled={eliminando !== null || usuario.rol === "ADMIN" || usuario.email.toLowerCase() === emailActual?.toLowerCase()}>
                         {eliminando === usuario.id ? "Eliminando..." : "Eliminar"}
                       </button>
                     </div>
@@ -241,7 +283,7 @@ function UsuariosAdmin() {
                 </tr>
               ))}
               {usuarios.length === 0 && (
-                <tr><td colSpan={5} className="text-center">No hay usuarios registrados.</td></tr>
+                <tr><td colSpan={8} className="text-center">No hay usuarios registrados.</td></tr>
               )}
             </tbody>
           </table>

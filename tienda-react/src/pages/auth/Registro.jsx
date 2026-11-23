@@ -1,23 +1,33 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { registrarse } from "../../data/auth.js";
+import { validarRun } from "../../data/usuarios.js";
 
 const formularioInicial = {
+  run: "",
   nombre: "",
+  apellidos: "",
+  direccion: "",
   email: "",
   password: "",
   confirmarPassword: "",
 };
 
 const campos = [
+  { nombre: "run", etiqueta: "RUN sin puntos ni guion", tipo: "text", maximo: 9 },
   { nombre: "nombre", etiqueta: "Nombre", tipo: "text", maximo: 100 },
+  { nombre: "apellidos", etiqueta: "Apellidos", tipo: "text", maximo: 100 },
   { nombre: "email", etiqueta: "Correo electrónico", tipo: "email", maximo: 100 },
+  { nombre: "direccion", etiqueta: "Dirección", tipo: "text", maximo: 300 },
   { nombre: "password", etiqueta: "Contraseña (mínimo 6 caracteres)", tipo: "password", maximo: 50 },
   { nombre: "confirmarPassword", etiqueta: "Confirmar contraseña", tipo: "password", maximo: 50 },
 ];
 
 function validar(f) {
   const errores = {};
+  if (!validarRun(f.run)) errores.run = "Ingresa un RUN válido, sin puntos ni guion";
+  if (!f.apellidos.trim()) errores.apellidos = "Faltan los apellidos";
+  if (!f.direccion.trim()) errores.direccion = "Falta la dirección";
   if (!f.nombre.trim()) errores.nombre = "Falta el nombre";
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email.trim())) {
     errores.email = "El correo no es válido";
@@ -55,7 +65,11 @@ function Registro() {
 
     setEnviando(true);
     try {
-      await registrarse(formulario.nombre, formulario.email, formulario.password);
+      await registrarse(formulario.nombre, formulario.email, formulario.password, {
+        run: formulario.run.trim().toUpperCase(),
+        apellidos: formulario.apellidos.trim(),
+        direccion: formulario.direccion.trim(),
+      });
       navegar("/");
     } catch (error) {
       if (error.campos) setErrores(error.campos);

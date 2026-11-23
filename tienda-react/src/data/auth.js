@@ -36,7 +36,7 @@ export async function iniciarSesion(email, password) {
 }
 
 // El registro crea un CLIENTE en la base de datos y devuelve una sesión JWT.
-export async function registrarse(nombre, email, password) {
+export async function registrarse(nombre, email, password, camposExtra = {}) {
   const nombreLimpio = nombre.trim();
   const correo = email.trim().toLowerCase();
 
@@ -49,6 +49,7 @@ export async function registrarse(nombre, email, password) {
       nombre: nombreLimpio,
       email: correo,
       password,
+      ...camposExtra,
     });
     return guardarSesion(respuesta.data);
   } catch (error) {
