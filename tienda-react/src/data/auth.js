@@ -3,6 +3,20 @@ import { mensajeDeError } from "../servicios/errores.js";
 
 const CLAVE_SESION = "milsabores_sesion";
 
+function guardarSesion(datos) {
+  const sesion = {
+    id: datos.email,
+    token: datos.token,
+    nombre: datos.nombre,
+    email: datos.email,
+    rol: datos.rol,
+  };
+
+  sessionStorage.setItem(CLAVE_SESION, JSON.stringify(sesion));
+  window.dispatchEvent(new Event("sesion-cambiada"));
+  return sesion;
+}
+
 export async function iniciarSesion(email, password) {
   const correo = email.trim().toLowerCase();
 
@@ -12,22 +26,32 @@ export async function iniciarSesion(email, password) {
 
   try {
     const respuesta = await api.post("/auth/login", { email: correo, password });
-
-    const sesion = {
-      id: respuesta.data.email,
-      token: respuesta.data.token,
-      nombre: respuesta.data.nombre,
-      email: respuesta.data.email,
-      rol: respuesta.data.rol,
-    };
-
-    sessionStorage.setItem(CLAVE_SESION, JSON.stringify(sesion));
-    window.dispatchEvent(new Event("sesion-cambiada"));
-    return sesion;
+    return guardarSesion(respuesta.data);
   } catch (error) {
     if (error.response?.status === 401) {
       throw new Error("Correo o contraseña incorrectos.");
     }
+    throw new Error(mensajeDeError(error));
+  }
+}
+
+// El registro crea un CLIENTE en la base de datos y devuelve una sesión JWT.
+export async function registrarse(nombre, email, password) {
+  const nombreLimpio = nombre.trim();
+  const correo = email.trim().toLowerCase();
+
+  if (!nombreLimpio || !correo || password.length < 6) {
+    throw new Error("Completa los datos y usa una contraseña de al menos 6 caracteres.");
+  }
+
+  try {
+    const respuesta = await api.post("/auth/registro", {
+      nombre: nombreLimpio,
+      email: correo,
+      password,
+    });
+    return guardarSesion(respuesta.data);
+  } catch (error) {
     throw new Error(mensajeDeError(error));
   }
 }

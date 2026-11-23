@@ -1,106 +1,67 @@
 import { useState } from "react";
-import {
-  registrarUsuario,
-  validarRegistro,
-} from "../../data/usuarios.js";
+import { useNavigate } from "react-router-dom";
+import { registrarse } from "../../data/auth.js";
 
 const formularioInicial = {
-  run: "",
   nombre: "",
-  apellidos: "",
   email: "",
-  direccion: "",
   password: "",
   confirmarPassword: "",
 };
 
 const campos = [
-  {
-    nombre: "run",
-    etiqueta: "RUN sin puntos ni guion",
-    tipo: "text",
-    maximo: 9,
-  },
-  {
-    nombre: "nombre",
-    etiqueta: "Nombre",
-    tipo: "text",
-    maximo: 50,
-  },
-  {
-    nombre: "apellidos",
-    etiqueta: "Apellidos",
-    tipo: "text",
-    maximo: 100,
-  },
-  {
-    nombre: "email",
-    etiqueta: "Correo electrónico",
-    tipo: "email",
-    maximo: 100,
-  },
-  {
-    nombre: "direccion",
-    etiqueta: "Dirección",
-    tipo: "text",
-    maximo: 300,
-  },
-  {
-    nombre: "password",
-    etiqueta: "Contraseña",
-    tipo: "password",
-    maximo: 10,
-  },
-  {
-    nombre: "confirmarPassword",
-    etiqueta: "Confirmar contraseña",
-    tipo: "password",
-    maximo: 10,
-  },
+  { nombre: "nombre", etiqueta: "Nombre", tipo: "text", maximo: 100 },
+  { nombre: "email", etiqueta: "Correo electrónico", tipo: "email", maximo: 100 },
+  { nombre: "password", etiqueta: "Contraseña (mínimo 6 caracteres)", tipo: "password", maximo: 50 },
+  { nombre: "confirmarPassword", etiqueta: "Confirmar contraseña", tipo: "password", maximo: 50 },
 ];
 
+function validar(f) {
+  const errores = {};
+  if (!f.nombre.trim()) errores.nombre = "Falta el nombre";
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email.trim())) {
+    errores.email = "El correo no es válido";
+  }
+  if (f.password.length < 6) {
+    errores.password = "La contraseña debe tener al menos 6 caracteres";
+  }
+  if (f.confirmarPassword !== f.password) {
+    errores.confirmarPassword = "Las contraseñas no coinciden";
+  }
+  return errores;
+}
+
 function Registro() {
+  const navegar = useNavigate();
   const [formulario, setFormulario] = useState(formularioInicial);
   const [errores, setErrores] = useState({});
-  const [mensaje, setMensaje] = useState("");
   const [errorGeneral, setErrorGeneral] = useState("");
+  const [enviando, setEnviando] = useState(false);
 
   function manejarCambio(evento) {
     const { name, value } = evento.target;
-
-    setFormulario((actual) => ({
-      ...actual,
-      [name]: value,
-    }));
-
-    setErrores((actuales) => ({
-      ...actuales,
-      [name]: "",
-    }));
-
-    setMensaje("");
+    setFormulario((actual) => ({ ...actual, [name]: value }));
+    setErrores((actuales) => ({ ...actuales, [name]: "" }));
     setErrorGeneral("");
   }
 
-  function manejarRegistro(evento) {
+  async function manejarRegistro(evento) {
     evento.preventDefault();
-    setMensaje("");
     setErrorGeneral("");
 
-    const nuevosErrores = validarRegistro(formulario);
+    const nuevosErrores = validar(formulario);
     setErrores(nuevosErrores);
+    if (Object.keys(nuevosErrores).length > 0) return;
 
-    if (Object.keys(nuevosErrores).length > 0) {
-      return;
-    }
-
+    setEnviando(true);
     try {
-      registrarUsuario(formulario);
-      setFormulario({ ...formularioInicial });
-      setErrores({});
-      setMensaje("Cuenta creada correctamente.");
+      await registrarse(formulario.nombre, formulario.email, formulario.password);
+      navegar("/");
     } catch (error) {
+      if (error.campos) setErrores(error.campos);
       setErrorGeneral(error.message);
+    } finally {
+      setEnviando(false);
     }
   }
 
@@ -111,17 +72,9 @@ function Registro() {
           <div className="card shadow-sm">
             <div className="card-body p-4">
               <h2 className="mb-3">Crear cuenta</h2>
-
               <p className="text-muted">
-                Completa tus datos para registrarte en Pastelería Mil
-                Sabores.
+                Completa tus datos para registrarte en Pastelería Mil Sabores.
               </p>
-
-              {mensaje && (
-                <div className="alert alert-success" role="status">
-                  {mensaje}
-                </div>
-              )}
 
               {errorGeneral && (
                 <div className="alert alert-danger" role="alert">
@@ -132,53 +85,29 @@ function Registro() {
               <form onSubmit={manejarRegistro} noValidate>
                 {campos.map((campo) => (
                   <div className="mb-3" key={campo.nombre}>
-                    <label
-                      htmlFor={`registro-${campo.nombre}`}
-                      className="form-label"
-                    >
+                    <label htmlFor={`registro-${campo.nombre}`} className="form-label">
                       {campo.etiqueta}
                     </label>
-
                     <input
                       id={`registro-${campo.nombre}`}
                       name={campo.nombre}
                       type={campo.tipo}
                       maxLength={campo.maximo}
-                      className={`form-control ${
-                        errores[campo.nombre] ? "is-invalid" : ""
-                      }`}
+                      className={`form-control ${errores[campo.nombre] ? "is-invalid" : ""}`}
                       value={formulario[campo.nombre]}
                       onChange={manejarCambio}
                       aria-invalid={Boolean(errores[campo.nombre])}
-                      aria-describedby={
-                        errores[campo.nombre]
-                          ? `error-${campo.nombre}`
-                          : undefined
-                      }
-                      autoComplete={
-                        campo.tipo === "password"
-                          ? "new-password"
-                          : undefined
-                      }
+                      autoComplete={campo.tipo === "password" ? "new-password" : undefined}
                       required
                     />
-
                     {errores[campo.nombre] && (
-                      <div
-                        id={`error-${campo.nombre}`}
-                        className="invalid-feedback"
-                      >
-                        {errores[campo.nombre]}
-                      </div>
+                      <div className="invalid-feedback">{errores[campo.nombre]}</div>
                     )}
                   </div>
                 ))}
 
-                <button
-                  type="submit"
-                  className="btn btn-success w-100"
-                >
-                  Registrarme
+                <button type="submit" className="btn btn-success w-100" disabled={enviando}>
+                  {enviando ? "Creando cuenta..." : "Registrarme"}
                 </button>
               </form>
             </div>

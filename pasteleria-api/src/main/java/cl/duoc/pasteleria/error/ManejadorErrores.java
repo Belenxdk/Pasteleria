@@ -26,7 +26,10 @@ public class ManejadorErrores {
     public ResponseEntity<ErrorApi> credenciales(CredencialesInvalidasException ex) {
         return responder(HttpStatus.UNAUTHORIZED, ex.getMessage(), Map.of());
     }
-
+    @ExceptionHandler(ConflictoException.class)
+    public ResponseEntity<ErrorApi> conflicto(ConflictoException ex) {
+        return responder(HttpStatus.CONFLICT, ex.getMessage(), Map.of());
+    }
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorApi> datosInvalidos(MethodArgumentNotValidException ex) {
         Map<String, String> campos = new LinkedHashMap<>();
