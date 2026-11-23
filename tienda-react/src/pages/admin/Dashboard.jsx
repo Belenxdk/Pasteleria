@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { listarProductos } from "../../servicios/productos.js";
+import { listarUsuarios } from "../../servicios/usuarios.js";
 import { mensajeDeError } from "../../servicios/errores.js";
-import { listarUsuarios } from "../../data/usuarios.js";
 import { obtenerSesion } from "../../data/auth.js";
 
 function Dashboard() {
   const [productos, setProductos] = useState([]);
+  const [usuarios, setUsuarios] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
-  const usuarios = listarUsuarios();
   const sesion = obtenerSesion();
   const esAdmin = sesion?.rol === "ADMIN";
 
@@ -20,6 +20,11 @@ function Dashboard() {
       try {
         const datos = await listarProductos();
         if (!ignorar) setProductos(datos);
+
+        if (esAdmin) {
+          const lista = await listarUsuarios();
+          if (!ignorar) setUsuarios(lista);
+        }
       } catch (e) {
         if (!ignorar) setError(mensajeDeError(e));
       } finally {
@@ -31,7 +36,7 @@ function Dashboard() {
     return () => {
       ignorar = true;
     };
-  }, []);
+  }, [esAdmin]);
 
   const productosSinStock = productos.filter(
     (producto) => producto.stock === 0
@@ -65,10 +70,9 @@ function Dashboard() {
             <div className="card h-100 shadow-sm">
               <div className="card-body">
                 <h3 className="h5">Usuarios registrados</h3>
-                <p className="display-6 mb-0">{usuarios.length}</p>
-                <small className="text-muted">
-                  Incluye la cuenta administradora.
-                </small>
+                <p className="display-6 mb-0">
+                  {cargando ? "-" : usuarios.length}
+                </p>
               </div>
             </div>
           </div>
