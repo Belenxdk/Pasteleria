@@ -1,10 +1,11 @@
+import { estaEnOferta } from '../../utils/ofertas.js'
 import { useEffect, useState } from 'react'
 import { Container, Spinner, Alert, Button } from 'react-bootstrap'
 import Catalogo from '../../components/Catalogo.jsx'
 import { listarProductos } from '../../servicios/productos.js'
 import { mensajeDeError } from '../../servicios/errores.js'
 
-function Productos({ onAgregar }) {
+function Productos({ soloOfertas = false }) {
     const [productos, setProductos] = useState([])
     const [cargando, setCargando] = useState(true)
     const [error, setError] = useState(null)
@@ -34,7 +35,7 @@ function Productos({ onAgregar }) {
 
     return (
         <Container as="main" className="py-4">
-            <h2 className="mb-4 text-center">Nuestros Productos</h2>
+            <h2 className="mb-4 text-center">{soloOfertas ? "Ofertas" : "Nuestros Productos"}</h2>
 
             {cargando ? (
                 <div className="text-center py-5">
@@ -51,8 +52,7 @@ function Productos({ onAgregar }) {
                 </Alert>
             ) : (
                 <Catalogo
-                    productos={productos.filter((p) => p.activo !== false)}
-                    onAgregar={onAgregar}
+                    productos={productos.filter(p => p.activo !== false && (!soloOfertas || estaEnOferta(p)))}
                 />
             )}
         </Container>

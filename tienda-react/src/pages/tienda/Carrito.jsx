@@ -1,9 +1,11 @@
+import { useCarrito } from '../../context/CartContext.jsx'
 import { Link } from 'react-router-dom'
 import { Alert, Col, Container, Row } from 'react-bootstrap'
 import ItemCarrito from '../../components/ItemCarrito.jsx'
 import ResumenCarrito from '../../components/ResumenCarrito.jsx'
 
-function Carrito({ carrito, cantidad, total, onCambiarCantidad, onEliminar, onVaciar }) {
+function Carrito() {
+    const { carrito, cantidad, total, cambiarCantidadItem: onCambiarCantidad, eliminarDelCarrito: onEliminar, vaciarCarrito: onVaciar } = useCarrito()
     return (
         <Container as="main" className="py-4">
             <h2 className="text-center mb-4">Tu carrito de compras</h2>

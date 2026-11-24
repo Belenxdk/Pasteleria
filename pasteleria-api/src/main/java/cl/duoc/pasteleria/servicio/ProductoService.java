@@ -36,6 +36,8 @@ public class ProductoService {
         actual.setDescripcion(datos.getDescripcion());
         actual.setCategoria(datos.getCategoria());
         actual.setPrecio(datos.getPrecio());
+        actual.setPrecioAnterior(datos.getPrecioAnterior());
+        actual.setImagen(datos.getImagen());
         actual.setStock(datos.getStock());
         if (datos.getActivo() != null){
             actual.setActivo(datos.getActivo());

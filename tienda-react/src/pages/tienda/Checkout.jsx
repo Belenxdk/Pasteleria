@@ -1,3 +1,4 @@
+import { useCarrito } from '../../context/CartContext.jsx'
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Alert, Button, Container, Form, Table } from 'react-bootstrap'
@@ -7,7 +8,8 @@ import { mensajeDeError } from '../../servicios/errores.js'
 import { armarItemsOrden } from '../../utils/carrito.js'
 import { formatearPrecio } from '../../utils/formato.js'
 
-function Checkout({ carrito, total, onVaciar }) {
+function Checkout() {
+    const { carrito, total, vaciarCarrito: onVaciar } = useCarrito()
     const navigate = useNavigate()
     const sesion = obtenerSesion()
     const [direccion, setDireccion] = useState('')
@@ -91,7 +93,7 @@ function Checkout({ carrito, total, onVaciar }) {
                 />
             </Form.Group>
 
-            <div className="d-flex justify-content-center gap-2">
+            <div className="d-flex flex-wrap justify-content-center gap-2">
                 <Button as={Link} to="/carrito" className="btn-agregar">Volver al carrito</Button>
                 <Button
                     className="btn-primario"

@@ -1,9 +1,11 @@
+import { useCarrito } from '../context/CartContext.jsx';
 import { useState, useEffect } from "react";
 import { NavLink, Link, useNavigate } from "react-router-dom";
 import { Navbar, Nav, Container, Button } from "react-bootstrap";
 import { obtenerSesion, cerrarSesion } from "../data/auth.js";
 
-function Encabezado({ cantidad = 0 }) {
+function Encabezado() {
+    const { cantidad } = useCarrito();
     const [sesion, setSesion] = useState(() => obtenerSesion());
     const navegar = useNavigate();
 
@@ -23,7 +25,7 @@ function Encabezado({ cantidad = 0 }) {
     }
 
     return (
-        <Navbar bg="white" expand="lg" sticky="top" className="encabezado shadow-sm" collapseOnSelect>
+        <Navbar bg="white" expand="xl" sticky="top" className="encabezado shadow-sm" collapseOnSelect>
             <Container fluid className="px-4">
                 <Navbar.Brand as={Link} to="/" className="logo">
                     Pastelería <span>Mil Sabores</span>
@@ -34,6 +36,7 @@ function Encabezado({ cantidad = 0 }) {
                         <Nav.Link as={NavLink} to="/" end>Inicio</Nav.Link>
                         <Nav.Link as={NavLink} to="/productos">Productos</Nav.Link>
                         <Nav.Link as={NavLink} to="/nosotros">Nosotros</Nav.Link>
+                        <Nav.Link as={NavLink} to="/ofertas">Ofertas</Nav.Link>
                         <Nav.Link as={NavLink} to="/blog">Blog</Nav.Link>
                         <Nav.Link as={NavLink} to="/contacto">Contacto</Nav.Link>
                         {puedeAdministrar && (

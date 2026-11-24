@@ -8,7 +8,7 @@ import { mensajeDeError } from '../../servicios/errores.js'
 
 const idsFavoritos = ['torta-chocolate', 'cheesecake-frutos-rojos', 'macarons']
 
-function Home({ onAgregar }) {
+function Home() {
     const [favoritos, setFavoritos] = useState([])
     const [cargando, setCargando] = useState(true)
     const [error, setError] = useState(null)
@@ -52,7 +52,7 @@ function Home({ onAgregar }) {
                     <Row xs={1} sm={2} lg={3} className="g-4">
                         {favoritos.map((producto) => (
                             <Col key={producto.id}>
-                                <TarjetaProducto producto={producto} onAgregar={onAgregar} />
+                                <TarjetaProducto producto={producto} />
                             </Col>
                         ))}
                     </Row>

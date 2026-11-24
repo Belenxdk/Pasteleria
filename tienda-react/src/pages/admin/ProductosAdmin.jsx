@@ -30,6 +30,8 @@ function ProductosAdmin() {
   const [nombre, setNombre] = useState("");
   const [categoria, setCategoria] = useState("Tortas");
   const [precio, setPrecio] = useState("");
+  const [precioAnterior, setPrecioAnterior] = useState("");
+  const [descripcion, setDescripcion] = useState("");
   const [stock, setStock] = useState("");
   const [imagen, setImagen] = useState("/img/productos/tortaChocolate.jpg");
 
@@ -53,6 +55,8 @@ function ProductosAdmin() {
     setNombre("");
     setCategoria("Tortas");
     setPrecio("");
+    setPrecioAnterior("");
+    setDescripcion("");
     setStock("");
     setImagen("/img/productos/tortaChocolate.jpg");
   }
@@ -62,6 +66,8 @@ function ProductosAdmin() {
     setNombre(producto.nombre);
     setCategoria(producto.categoria);
     setPrecio(String(producto.precio));
+    setPrecioAnterior(producto.precioAnterior == null ? "" : String(producto.precioAnterior));
+    setDescripcion(producto.descripcion ?? "");
     setStock(String(producto.stock));
     setImagen(producto.imagen);
     setMensaje("");
@@ -84,10 +90,17 @@ function ProductosAdmin() {
       return;
     }
 
+    if (precioAnterior !== "" && (!Number.isInteger(Number(precioAnterior)) || Number(precioAnterior) <= Number(precio))) {
+      setError("El precio anterior debe ser mayor que el precio actual.");
+      return;
+    }
+
     const datos = {
       nombre: nombre.trim(),
       categoria,
       precio: Number(precio),
+      precioAnterior: precioAnterior === "" ? null : Number(precioAnterior),
+      descripcion: descripcion.trim(),
       stock: Number(stock),
       imagen: imagen.trim(),
     };
@@ -97,12 +110,11 @@ function ProductosAdmin() {
       if (editando !== null) {
         await actualizarProducto(editando.id, {
           ...datos,
-          descripcion: editando.descripcion ?? "",
           activo: editando.activo ?? true,
         });
         setMensaje("Producto actualizado correctamente.");
       } else {
-        await crearProducto({ ...datos, descripcion: "", activo: true });
+        await crearProducto({ ...datos, activo: true });
         setMensaje("Producto creado correctamente.");
       }
       limpiarFormulario();
@@ -221,6 +233,15 @@ function ProductosAdmin() {
               />
             </div>
 
+            <div className="col-md-6">
+              <label htmlFor="precioAnterior" className="form-label">Precio anterior (opcional, para ofertas)</label>
+              <input id="precioAnterior" type="number" min="1" step="1" className="form-control" value={precioAnterior} onChange={e => setPrecioAnterior(e.target.value)} />
+              <small>El precio actual es el que paga el cliente. Dejar vacío para quitar la oferta.</small>
+            </div>
+            <div className="col-12">
+              <label htmlFor="descripcion" className="form-label">Descripción</label>
+              <textarea id="descripcion" className="form-control" maxLength={300} value={descripcion} onChange={e => setDescripcion(e.target.value)} />
+            </div>
             <div className="col-12">
               <label htmlFor="imagen" className="form-label">
                 Ruta de la imagen

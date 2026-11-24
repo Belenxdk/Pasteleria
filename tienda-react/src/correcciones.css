@@ -1,0 +1,22 @@
+/* Los elementos flex/grid deben poder encogerse sin extender el viewport. */
+#root, #root > *, .encabezado .navbar-collapse, .encabezado .navbar-nav,
+.row > *, .card, .card-body, .table-responsive, .portada-contenido { min-width: 0; }
+#root > *, img, svg, iframe, .form-control, .form-select { max-width: 100%; }
+.card-body, .pie, main, .item-carrito, .encabezado { overflow-wrap: anywhere; }
+.table-responsive { width: 100%; overflow-x: auto; }
+.item-carrito .btn-group { max-width: 100%; }
+.item-carrito .btn-group .btn { padding: .35rem .55rem; }
+.detalle-imagen { width: 100%; max-height: 500px; object-fit: contain; border-radius: 12px; background: white; }
+.blog-articulo { max-width: 780px; margin-inline: auto; }
+.blog-articulo h2 { font-size: 1.5rem; margin-top: 1.5rem; }
+@media (max-width: 1199.98px) {
+  .encabezado .navbar-collapse { padding-top: .75rem; }
+  .encabezado .navbar-collapse .btn, .encabezado .navbar-collapse .nav-link { margin-block: .25rem; }
+}
+@media (max-width: 767.98px) {
+  .encabezado .logo { white-space: normal; font-size: 1.15rem; max-width: 70%; margin-right: .25rem; }
+  .encabezado .container-fluid { padding-inline: .75rem !important; }
+  .portada { padding: 1rem; min-height: 45vh; }
+  .portada h1 { font-size: 1.9rem; }
+  .historia-caja, .caja-contacto { padding: 1rem; }
+}

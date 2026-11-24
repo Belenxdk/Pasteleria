@@ -14,6 +14,8 @@ function PiePagina(){
                         <h4>Enlaces</h4>
                         <ul className="list-unstyled">
                             <li><Link to="/productos">Productos</Link></li>
+                            <li><Link to="/ofertas">Ofertas</Link></li>
+                            <li><Link to="/blog">Blog</Link></li>
                             <li><Link to="/nosotros">Nosotros</Link></li>
                             <li><Link to="/contacto">Contacto</Link></li>
                         </ul>

@@ -24,6 +24,18 @@ public class Producto {
     @Positive(message = "El precio debe ser mayor que cero")
     private Integer precio;
 
+    @Positive(message = "El precio anterior debe ser mayor que cero")
+    private Integer precioAnterior;
+
+    @AssertTrue(message = "El precio anterior debe ser mayor que el precio actual")
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    public boolean isOfertaValida() {
+        return precioAnterior == null || (precio != null && precioAnterior > precio);
+    }
+
+    public Integer getPrecioAnterior() { return precioAnterior; }
+    public void setPrecioAnterior(Integer precioAnterior) { this.precioAnterior = precioAnterior; }
+
     private String imagen;
 
     @NotNull(message = "El stock es OBLIGATORIO")
